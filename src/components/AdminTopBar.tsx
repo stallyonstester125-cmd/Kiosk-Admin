@@ -29,8 +29,8 @@ export default function AdminTopBar() {
       {/* Left — logo + mobile menu toggle */}
       <div className="flex items-center gap-4">
         <Image
-          src="/images/kioskbuddy-logo.png"
-          alt="KioskBuddy Logo"
+          src="/images/logo.svg"
+          alt="QuickCrave Logo"
           height={28}
           width={120}
           className="h-7 w-auto"
@@ -49,7 +49,7 @@ export default function AdminTopBar() {
         <div className="flex items-center gap-3">
           {/* Avatar + name */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white text-xs font-bold select-none">
+            <div className="w-8 h-8 rounded-full bg-[var(--brand-orange)] flex items-center justify-center text-white text-xs font-bold select-none">
               {initials}
             </div>
             <div className="hidden sm:flex flex-col leading-none">
@@ -69,7 +69,7 @@ export default function AdminTopBar() {
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors disabled:opacity-50"
             aria-label="Logout"
           >
             <LogOut className="w-4 h-4" strokeWidth={2} />

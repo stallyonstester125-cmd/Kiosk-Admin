@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Layers, ClipboardList, CreditCard, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
 
-const ACCENT_COLOR = "#C41E3A";
-
 type NavItem = {
   key: string;
   label: string;
@@ -124,7 +122,7 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
       <Icon
         className={`w-5 h-5 ${
           isActiveItem
-            ? "text-red-700 dark:text-red-300"
+            ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
             : "text-zinc-500 dark:text-zinc-400"
         }`}
         strokeWidth={2}
@@ -153,16 +151,16 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
                   onClick={() => handleMenuToggle(item.key)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
                     isActiveItem
-                      ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300"
+                      ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
                       : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
                   }`}
-                  style={isActiveItem ? { borderLeft: `4px solid ${ACCENT_COLOR}` } : {}}
+                  style={isActiveItem ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
                 >
                   {renderIcon(item, isActiveItem)}
                   <span className="flex-1">{item.label}</span>
                   <ChevronRight
                     className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""} ${
-                      isActiveItem ? "text-red-700 dark:text-red-300" : "text-zinc-500 dark:text-zinc-400"
+                      isActiveItem ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" : "text-zinc-500 dark:text-zinc-400"
                     }`}
                     strokeWidth={2}
                   />
@@ -178,10 +176,10 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
                           href={sub.href}
                           className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                             subItemActive
-                              ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 font-medium"
+                              ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] font-medium"
                               : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
                           }`}
-                          style={subItemActive ? { borderLeft: `4px solid ${ACCENT_COLOR}` } : {}}
+                          style={subItemActive ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
                         >
                           {sub.label}
                         </Link>
@@ -199,10 +197,10 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
               href={item.href!}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
                 active
-                  ? "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300"
+                  ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
                   : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
               }`}
-              style={active ? { borderLeft: `4px solid ${ACCENT_COLOR}` } : {}}
+              style={active ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
             >
               {renderIcon(item, active)}
               <span>{item.label}</span>

@@ -7,8 +7,6 @@ import { useAuth } from "@/context/AdminAuthContext";
 import { useRouter } from "next/navigation";
 
 const poppinsFont = { fontFamily: "var(--font-inter)" };
-const BRAND_ORANGE = "#F5511E";
-const BRAND_ORANGE_HOVER = "#E0471A";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -98,7 +96,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[${BRAND_ORANGE}] focus:border-transparent bg-white text-zinc-900 placeholder-zinc-400 text-base"
+                  className="w-full pl-10 pr-4 py-3 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:border-transparent bg-white text-zinc-900 placeholder-zinc-400 text-base"
                   placeholder="your@example.com"
                   disabled={isLoading}
                   style={poppinsFont}
@@ -118,7 +116,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[${BRAND_ORANGE}] focus:border-transparent bg-white text-zinc-900 placeholder-zinc-400 text-base"
+                  className="w-full pl-10 pr-12 py-3 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:border-transparent bg-white text-zinc-900 placeholder-zinc-400 text-base"
                   placeholder="Enter your password"
                   disabled={isLoading}
                   style={poppinsFont}
@@ -141,7 +139,7 @@ export default function LoginPage() {
                 id="rememberMe"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-zinc-300 text-[${BRAND_ORANGE}] focus:ring-2 focus:ring-[${BRAND_ORANGE}] focus:ring-offset-2 cursor-pointer"
+                className="w-4 h-4 rounded border-zinc-300 text-[var(--brand-orange)] focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2 cursor-pointer"
                 disabled={isLoading}
               />
               <label htmlFor="rememberMe" className="ml-2 text-xs font-medium text-zinc-600 uppercase tracking-wide cursor-pointer" style={poppinsFont}>
@@ -152,9 +150,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-lg text-white font-semibold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-[${BRAND_ORANGE}] focus:ring-offset-2"
+              className="w-full py-3 px-4 rounded-lg text-white font-semibold text-base transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
               style={{
-                backgroundColor: isLoading ? BRAND_ORANGE_HOVER : BRAND_ORANGE,
+                backgroundColor: isLoading ? "var(--brand-orange-hover)" : "var(--brand-orange)",
               }}
             >
               {isLoading ? "Signing in..." : "Login"}
