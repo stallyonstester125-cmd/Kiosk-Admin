@@ -215,7 +215,7 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
           fill
           className="object-cover"
           priority
-          sizes="100vw"
+          sizes="256px"
         />
       </div>
     </aside>

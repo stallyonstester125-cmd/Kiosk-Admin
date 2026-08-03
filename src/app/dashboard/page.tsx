@@ -122,7 +122,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-orange)]"></div>
       </div>
     );
   }
@@ -139,10 +139,10 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <ChartGradient />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <span className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] uppercase tracking-wider">
           FOOD
         </span>
-        <nav className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400" aria-label="Breadcrumb">
+        <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
           <span>Home</span>
           <span>/</span>
           <span className="font-medium">Dashboard</span>

@@ -27,13 +27,13 @@ export default function AdminTopBar() {
   return (
     <header className="h-20 bg-[var(--brand-orange)] fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8">
       {/* Left — logo + mobile menu toggle */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 overflow-visible">
         <Image
           src="/images/logo.svg"
           alt="QuickCrave Logo"
           height={36}
           width={150}
-          className="h-9 w-auto"
+          className="h-9 w-auto max-w-none"
           priority
         />
         <button
