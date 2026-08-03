@@ -64,7 +64,7 @@ function CreateStaffModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
               placeholder="Jane Smith"
             />
           </div>
@@ -75,7 +75,7 @@ function CreateStaffModal({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
               placeholder="staff@example.com"
             />
           </div>
@@ -88,7 +88,7 @@ function CreateStaffModal({
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 pr-10"
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
                 placeholder="Min 6 characters"
               />
               <button
@@ -111,7 +111,7 @@ function CreateStaffModal({
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               Create Staff
@@ -174,7 +174,7 @@ function ResetPasswordModal({
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 pr-10"
+              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
               placeholder="New password (min 6 chars)"
             />
             <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
@@ -183,7 +183,7 @@ function ResetPasswordModal({
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-600 hover:bg-zinc-50">Cancel</button>
-            <button type="submit" disabled={loading || success} className="flex-1 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading || success} className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2">
               {loading && <Loader2 className="w-4 h-4 animate-spin" />} Reset
             </button>
           </div>
@@ -236,7 +236,7 @@ export default function StaffPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-orange)]" />
       </div>
     );
   }
@@ -246,16 +246,16 @@ export default function StaffPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]">
             Staff Management
           </span>
-          <nav className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 mt-1" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] mt-1" aria-label="Breadcrumb">
             <span>Home</span><span>/</span><span className="font-medium">Staff</span>
           </nav>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Staff
@@ -278,7 +278,7 @@ export default function StaffPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-red-600 text-xs font-semibold uppercase tracking-wider text-white">
+              <thead className="bg-[var(--brand-orange)] text-xs font-semibold uppercase tracking-wider text-white">
                 <tr>
                   <th className="px-6 py-4">Name</th>
                   <th className="px-6 py-4">Email</th>
@@ -323,7 +323,7 @@ export default function StaffPage() {
                             title={active ? "Deactivate" : "Activate"}
                             className={`p-1.5 rounded-lg transition-colors ${
                               active
-                                ? "text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                ? "text-[var(--brand-orange)] hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20"
                                 : "text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                             } disabled:opacity-50`}
                           >

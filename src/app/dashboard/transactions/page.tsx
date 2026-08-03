@@ -53,7 +53,7 @@ export default function TransactionsPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--brand-orange)]" />
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function TransactionsPage() {
         <p className="text-red-600 dark:text-red-400">Error: {error}</p>
         <button
           onClick={() => void loadData()}
-          className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+          className="mt-4 rounded-lg bg-[var(--brand-orange)] px-4 py-2 text-white hover:bg-[var(--brand-orange-hover)]"
         >
           Retry
         </button>
@@ -76,10 +76,10 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]">
           Transaction and Analytics
         </span>
-        <nav className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400" aria-label="Breadcrumb">
+        <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
           <span>Home</span>
           <span>/</span>
           <span className="font-medium">Transaction and Analytics</span>
@@ -96,7 +96,7 @@ export default function TransactionsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               {/* Red header band */}
-              <thead className="bg-red-600 text-xs font-semibold uppercase tracking-wider text-white">
+              <thead className="bg-[var(--brand-orange)] text-xs font-semibold uppercase tracking-wider text-white">
                 <tr>
                   <th className="px-6 py-4">Order Number</th>
                   <th className="px-6 py-4">Date</th>

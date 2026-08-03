@@ -30,7 +30,7 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-orange)]"></div>
       </div>
     );
   }
@@ -47,9 +47,9 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <AdminTopBar />
-      <div className="flex pt-16">
+      <div className="flex pt-20">
         <AdminSidebar role={admin.role} />
-        <main className="flex-1 ml-64 p-6 sm:p-8 lg:ml-64 min-h-[calc(100vh-64px)]">
+        <main className="flex-1 ml-64 p-6 sm:p-8 lg:ml-64 min-h-[calc(100vh-80px)]">
           {children}
         </main>
       </div>

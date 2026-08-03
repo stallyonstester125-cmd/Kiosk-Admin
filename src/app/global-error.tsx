@@ -1,6 +1,5 @@
 "use client";
 
-
 export default function GlobalError({
   error,
   reset,
@@ -21,7 +20,7 @@ export default function GlobalError({
             </p>
             <button
               onClick={() => reset()}
-              className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+              className="px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
             >
               Try again
             </button>

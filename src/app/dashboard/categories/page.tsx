@@ -148,7 +148,7 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-orange)]"></div>
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function CategoriesPage() {
         <p className="text-red-600 dark:text-red-400">Error: {error}</p>
         <button 
           onClick={loadData}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          className="mt-4 px-4 py-2 bg-[var(--brand-orange)] text-white rounded-lg hover:bg-[var(--brand-orange-hover)]"
         >
           Retry
         </button>
@@ -171,10 +171,10 @@ export default function CategoriesPage() {
     <>
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <span className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] uppercase tracking-wider">
           FOOD
         </span>
-        <nav className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400" aria-label="Breadcrumb">
+        <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
           <span>Home</span>
           <span>/</span>
           <span className="font-medium">Menu Layout</span>
@@ -195,7 +195,7 @@ export default function CategoriesPage() {
             <p className="text-zinc-500 dark:text-zinc-400 mb-6">Get started by adding your first category</p>
             <button
               onClick={openAddModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Category
@@ -238,14 +238,14 @@ export default function CategoriesPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(category)}
-                          className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-red-500 hover:text-white transition-colors shadow-sm"
+                          className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors shadow-sm"
                           aria-label="Edit category"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => confirmDelete(category)}
-                          className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-red-500 hover:text-white transition-colors shadow-sm"
+                          className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors shadow-sm"
                           aria-label="Delete category"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function CategoriesPage() {
 
       <button
         onClick={openAddModal}
-        className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
+        className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-orange)] text-white flex items-center justify-center shadow-lg hover:bg-[var(--brand-orange-hover)] hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
         aria-label="Add new category"
       >
         <Plus className="w-7 h-7" />
@@ -291,7 +291,7 @@ export default function CategoriesPage() {
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                Category Name <span className="text-red-500">*</span>
+                Category Name <span className="text-[var(--brand-orange)]">*</span>
               </label>
               <input
                 type="text"
@@ -301,7 +301,7 @@ export default function CategoriesPage() {
                 className={`w-full px-4 py-3 rounded-lg border ${
                   errors.name 
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                    : "border-zinc-300 dark:border-zinc-600 focus:border-red-500 focus:ring-red-500"
+                    : "border-zinc-300 dark:border-zinc-600 focus:border-[var(--brand-orange)] focus:ring-[var(--brand-orange)]"
                 } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg px-4 py-3 transition-colors`}
                 placeholder="Enter category name"
                 disabled={isSubmitting}
@@ -328,7 +328,7 @@ export default function CategoriesPage() {
                 className={`w-full px-4 py-3 rounded-lg border ${
                   errors.displayOrder 
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500" 
-                    : "border-zinc-300 dark:border-zinc-600 focus:border-red-500 focus:ring-red-500"
+                    : "border-zinc-300 dark:border-zinc-600 focus:border-[var(--brand-orange)] focus:ring-[var(--brand-orange)]"
                 } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg px-4 py-3 transition-colors`}
                 placeholder="0"
                 disabled={isSubmitting}
@@ -351,7 +351,7 @@ export default function CategoriesPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3 rounded-lg bg-[var(--brand-orange)] text-white font-semibold hover:bg-[var(--brand-orange-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -372,8 +372,8 @@ export default function CategoriesPage() {
       style={{ display: deletingCategory ? "flex" : "none" }}
     >
       <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full p-6">
-        <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
-          <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+        <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/30">
+          <AlertCircle className="w-6 h-6 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" />
         </div>
         <h3 className="text-xl font-bold text-zinc-900 dark:text-white text-center mb-2">
           Delete Category
@@ -391,7 +391,7 @@ export default function CategoriesPage() {
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="flex-1 py-3 px-4 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 rounded-lg bg-[var(--brand-orange)] text-white font-semibold hover:bg-[var(--brand-orange-hover)] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isDeleting ? (
               <>

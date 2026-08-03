@@ -7,8 +7,6 @@ import { Edit, Trash2, Plus, X, Loader2, AlertCircle, CheckCircle } from "lucide
 import { useAuth } from "@/context/AdminAuthContext";
 import { fetchProducts, fetchCategories, createProduct, updateProduct, deleteProduct, Product, Category } from "@/lib/admin-api";
 
-const ACCENT_COLOR = "#C41E3A";
-
 interface FormData {
   name: string;
   price: string;
@@ -244,7 +242,7 @@ export default function ProductsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-orange)]"></div>
       </div>
     );
   }
@@ -255,7 +253,7 @@ export default function ProductsPage() {
         <p className="text-red-600 dark:text-red-400">Error: {error}</p>
         <button
           onClick={loadData}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          className="mt-4 px-4 py-2 bg-[var(--brand-orange)] text-white rounded-lg hover:bg-[var(--brand-orange-hover)]"
         >
           Retry
         </button>
@@ -267,10 +265,10 @@ export default function ProductsPage() {
     <>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <span className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] uppercase tracking-wider">
             FOOD
           </span>
-          <nav className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
             <span>Home</span>
             <span>/</span>
             <span className="font-medium">Menu Layout</span>
@@ -291,7 +289,7 @@ export default function ProductsPage() {
               <p className="text-zinc-500 dark:text-zinc-400 mb-6">Get started by adding your first product</p>
               <button
                 onClick={openAddModal}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Product
@@ -323,14 +321,14 @@ export default function ProductsPage() {
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => openEditModal(product)}
-                        className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-red-500 hover:text-white transition-colors shadow-sm"
+                        className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors shadow-sm"
                         aria-label="Edit product"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => confirmDelete(product)}
-                        className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-red-500 hover:text-white transition-colors shadow-sm"
+                        className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors shadow-sm"
                         aria-label="Delete product"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -361,7 +359,7 @@ export default function ProductsPage() {
 
         <button
           onClick={openAddModal}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-orange)] text-white flex items-center justify-center shadow-lg hover:bg-[var(--brand-orange-hover)] hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
           aria-label="Add new product"
         >
           <Plus className="w-7 h-7" />
@@ -420,7 +418,7 @@ export default function ProductsPage() {
                       type="button"
                       onClick={() => document.getElementById("product-image")?.click()}
                       disabled={isSubmitting}
-                      className="w-full py-3 px-4 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 text-zinc-600 dark:text-zinc-400 font-medium hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-3 px-4 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-600 text-zinc-600 dark:text-zinc-400 font-medium hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Add Product Image
                     </button>
@@ -433,7 +431,7 @@ export default function ProductsPage() {
                 <div className="lg:col-span-2 space-y-4">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                      Product Name <span className="text-red-500">*</span>
+                      Product Name <span className="text-[var(--brand-orange)]">*</span>
                     </label>
                     <input
                       type="text"
@@ -442,7 +440,7 @@ export default function ProductsPage() {
                       onChange={(e) => handleChange("name", e.target.value)}
                       className={`w-full px-4 py-3 rounded-lg border ${errors.name
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-zinc-300 dark:border-zinc-600 focus:border-red-500 focus:ring-red-500"
+                          : "border-zinc-300 dark:border-zinc-600 focus:border-[var(--brand-orange)] focus:ring-[var(--brand-orange)]"
                         } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg px-4 py-3 transition-colors`}
                       placeholder="Enter product name"
                       disabled={isSubmitting}
@@ -456,7 +454,7 @@ export default function ProductsPage() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="price" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                        Price ($) <span className="text-red-500">*</span>
+                        Price ($) <span className="text-[var(--brand-orange)]">*</span>
                       </label>
                       <input
                         type="number"
@@ -467,7 +465,7 @@ export default function ProductsPage() {
                         min="0.01"
                         className={`w-full px-4 py-3 rounded-lg border ${errors.price
                             ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-zinc-300 dark:border-zinc-600 focus:border-red-500 focus:ring-red-500"
+                            : "border-zinc-300 dark:border-zinc-600 focus:border-[var(--brand-orange)] focus:ring-[var(--brand-orange)]"
                           } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg px-4 py-3 transition-colors`}
                         placeholder="0.00"
                         disabled={isSubmitting}
@@ -480,7 +478,7 @@ export default function ProductsPage() {
 
                     <div>
                       <label htmlFor="category" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                        Category <span className="text-red-500">*</span>
+                        Category <span className="text-[var(--brand-orange)]">*</span>
                       </label>
                       <select
                         id="category"
@@ -488,7 +486,7 @@ export default function ProductsPage() {
                         onChange={(e) => handleChange("categoryId", e.target.value)}
                         className={`w-full px-4 py-3 rounded-lg border ${errors.categoryId
                             ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-zinc-300 dark:border-zinc-600 focus:border-red-500 focus:ring-red-500"
+                            : "border-zinc-300 dark:border-zinc-600 focus:border-[var(--brand-orange)] focus:ring-[var(--brand-orange)]"
                           } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg px-4 py-3 transition-colors`}
                         disabled={isSubmitting || categoriesLoading}
                         required
@@ -514,7 +512,7 @@ export default function ProductsPage() {
 
                   <div>
                     <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                      Description <span className="text-red-500">*</span>
+                      Description <span className="text-[var(--brand-orange)]">*</span>
                     </label>
                     <textarea
                       id="description"
@@ -523,7 +521,7 @@ export default function ProductsPage() {
                       rows={4}
                       className={`w-full px-4 py-3 rounded-lg border ${errors.description
                           ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-zinc-300 dark:border-zinc-600 focus:border-red-500 focus:ring-red-500"
+                          : "border-zinc-300 dark:border-zinc-600 focus:border-[var(--brand-orange)] focus:ring-[var(--brand-orange)]"
                         } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg px-4 py-3 transition-colors resize-none`}
                       placeholder="Enter product description"
                       disabled={isSubmitting}
@@ -551,7 +549,7 @@ export default function ProductsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-3 rounded-lg bg-[var(--brand-orange)] text-white font-semibold hover:bg-[var(--brand-orange-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -573,8 +571,8 @@ export default function ProductsPage() {
       {deletingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full p-6">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30">
-              <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/30">
+              <AlertCircle className="w-6 h-6 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" />
             </div>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-white text-center mb-2">
               Delete Product
@@ -592,7 +590,7 @@ export default function ProductsPage() {
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex-1 py-3 px-4 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 rounded-lg bg-[var(--brand-orange)] text-white font-semibold hover:bg-[var(--brand-orange-hover)] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isDeleting ? (
                   <>

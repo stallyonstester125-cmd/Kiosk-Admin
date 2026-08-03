@@ -13,10 +13,10 @@ export default function PaymentSettingsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]">
           Payment Settings
         </span>
-        <nav className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400" aria-label="Breadcrumb">
+        <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
           <span>Home</span>
           <span>/</span>
           <span className="font-medium">Payment Settings</span>
@@ -49,7 +49,7 @@ export default function PaymentSettingsPage() {
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-colors ${
               selectedMethod === "cash"
-                ? "border-red-600 bg-red-600"
+                ? "border-[var(--brand-orange)] bg-[var(--brand-orange)]"
                 : "border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-800"
             }`}
           >
@@ -81,7 +81,7 @@ export default function PaymentSettingsPage() {
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-colors ${
               selectedMethod === "card"
-                ? "border-red-600 bg-red-600"
+                ? "border-[var(--brand-orange)] bg-[var(--brand-orange)]"
                 : "border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-800"
             }`}
           >

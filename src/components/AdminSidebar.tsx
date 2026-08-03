@@ -131,7 +131,7 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
   };
 
   return (
-    <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col h-[calc(100vh-64px)] fixed top-16 left-0 z-40">
+    <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col h-[calc(100vh-80px)] fixed top-20 left-0 z-40 relative">
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         <div className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-3 py-2">
           {isAdmin ? "MAIN" : "KITCHEN"}
@@ -208,6 +208,16 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
           );
         })}
       </nav>
+      <div className="absolute bottom-0 left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
+        <Image
+          src="/images/wave.svg"
+          alt=""
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+      </div>
     </aside>
   );
 }
