@@ -4,9 +4,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "localhost",
-        port: "3000",
+        protocol: "https",
+        hostname: "kiosk-server-production-e08d.up.railway.app",
         pathname: "/uploads/**",
       },
     ],
