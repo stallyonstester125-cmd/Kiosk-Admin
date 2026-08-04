@@ -147,7 +147,7 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto pb-[42vh]">
         <div className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-3 py-2">
           {isAdmin ? "MAIN" : "KITCHEN"}
         </div>
