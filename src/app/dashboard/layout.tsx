@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AdminAuthContext";
 import AdminTopBar from "@/components/AdminTopBar";
 import AdminSidebar from "@/components/AdminSidebar";
-import { SearchProvider } from "@/context/SearchContext";
 
 export default function DashboardLayout({
   children,
@@ -51,7 +50,7 @@ export default function DashboardLayout({
       <div className="flex-1 ml-64 flex flex-col min-h-screen pt-16">
         <AdminTopBar />
         <main className="flex-1 p-6 sm:p-8 min-h-[calc(100vh-4rem)]">
-          <SearchProvider>{children}</SearchProvider>
+          {children}
         </main>
       </div>
     </div>

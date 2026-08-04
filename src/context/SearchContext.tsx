@@ -95,20 +95,29 @@ const SearchContext = createContext<SearchContextType | null>(null);
 
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState("");
+  const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
   
-  const config = PAGE_SEARCH_CONFIG[pathname] || PAGE_SEARCH_CONFIG["/dashboard"];
+  // Mark as client after mount to avoid static generation issues
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  const config = isClient ? (PAGE_SEARCH_CONFIG[pathname] || PAGE_SEARCH_CONFIG["/dashboard"]) : PAGE_SEARCH_CONFIG["/dashboard"];
   
   // Clear query when page changes
   useEffect(() => {
-    setQuery("");
-  }, [pathname]);
+    if (isClient) {
+      setQuery("");
+    }
+  }, [pathname, isClient]);
 
   const clearQuery = useCallback(() => setQuery(""), []);
   
   const filteredData = useCallback(<T,>(data: T[]) => {
+    if (!isClient) return data;
     return config.filterFn(data as any[], query) as T[];
-  }, [config, query]);
+  }, [config, query, isClient]);
 
   return (
     <SearchContext.Provider value={{ query, setQuery, clearQuery, config, filteredData }}>
