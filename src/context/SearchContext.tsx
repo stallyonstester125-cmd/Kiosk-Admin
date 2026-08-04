@@ -9,18 +9,55 @@ type SearchConfig = {
   filterFn: (data: any[], query: string) => any[];
 };
 
+const IGNORED_KEYS = new Set([
+  "_id",
+  "id",
+  "productId",
+  "groupId",
+  "createdAt",
+  "updatedAt",
+  "__v",
+  "image",
+  "imagePreview",
+  "password",
+  "hash",
+  "token",
+]);
+
 const genericFilter = (data: any[], query: string) => {
   const q = query.toLowerCase().trim();
   if (!q) return data;
   return data.filter((item) => {
     if (!item) return false;
-    return Object.values(item).some((val) => {
+    return Object.entries(item).some(([key, val]) => {
+      if (IGNORED_KEYS.has(key)) return false;
       if (val === null || val === undefined) return false;
       if (typeof val === "string" || typeof val === "number") {
         return val.toString().toLowerCase().includes(q);
       }
+      if (Array.isArray(val)) {
+        return val.some((subItem) => {
+          if (typeof subItem === "string" || typeof subItem === "number") {
+            return subItem.toString().toLowerCase().includes(q);
+          }
+          if (subItem && typeof subItem === "object") {
+            return Object.entries(subItem).some(
+              ([subKey, subVal]) =>
+                !IGNORED_KEYS.has(subKey) &&
+                (typeof subVal === "string" || typeof subVal === "number") &&
+                subVal.toString().toLowerCase().includes(q)
+            );
+          }
+          return false;
+        });
+      }
       if (typeof val === "object") {
-        return JSON.stringify(val).toLowerCase().includes(q);
+        return Object.entries(val).some(
+          ([subKey, subVal]) =>
+            !IGNORED_KEYS.has(subKey) &&
+            (typeof subVal === "string" || typeof subVal === "number") &&
+            subVal.toString().toLowerCase().includes(q)
+        );
       }
       return false;
     });

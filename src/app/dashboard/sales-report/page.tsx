@@ -20,7 +20,7 @@ export default function SalesReportPage() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
 
-  const { filteredData } = useSearch();
+  const { query, filteredData } = useSearch();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -62,11 +62,21 @@ export default function SalesReportPage() {
   
   const filteredRows = useMemo(() => {
     const filtered = filteredData(rows);
-    return [...filtered].sort((a, b) => {
+    const q = query.toLowerCase().trim();
+    const matched = q
+      ? filtered.filter(
+          (item) =>
+            (typeof item.customer === "string" && item.customer.toLowerCase().includes(q)) ||
+            (item.orderId !== undefined && item.orderId !== null && item.orderId.toString().toLowerCase().includes(q)) ||
+            (typeof item.product === "string" && item.product.toLowerCase().includes(q))
+        )
+      : filtered;
+
+    return [...matched].sort((a, b) => {
       const result = a.price - b.price;
       return sortOption === "low-high" ? result : -result;
     });
-  }, [rows, sortOption, filteredData]);
+  }, [rows, sortOption, filteredData, query]);
 
   useEffect(() => {
     setPage(1);

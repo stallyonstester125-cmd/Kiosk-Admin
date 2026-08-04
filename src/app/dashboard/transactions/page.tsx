@@ -31,8 +31,19 @@ export default function TransactionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
-  const { filteredData } = useSearch();
-  const filteredOrders = useMemo(() => filteredData(orders), [orders, filteredData]);
+  const { query, filteredData } = useSearch();
+  const filteredOrders = useMemo(() => {
+    const filtered = filteredData(orders);
+    const q = query.toLowerCase().trim();
+    if (!q) return filtered;
+    return filtered.filter(
+      (order) =>
+        (typeof order.customerName === "string" && order.customerName.toLowerCase().includes(q)) ||
+        (order.orderNumber !== undefined && order.orderNumber !== null && order.orderNumber.toString().toLowerCase().includes(q)) ||
+        (typeof order.paymentMethod === "string" && order.paymentMethod.toLowerCase().includes(q)) ||
+        (order.total !== undefined && order.total !== null && order.total.toString().toLowerCase().includes(q))
+    );
+  }, [orders, filteredData, query]);
 
   useEffect(() => {
     setPage(1);
