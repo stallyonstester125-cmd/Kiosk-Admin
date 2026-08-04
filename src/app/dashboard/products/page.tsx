@@ -40,7 +40,7 @@ export default function ProductsPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   const { filteredData } = useSearch();
-  const filteredProducts = useMemo(() => filteredData(products), [products]);
+  const filteredProducts = useMemo(() => filteredData(products), [products, filteredData]);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -289,15 +289,21 @@ export default function ProductsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">No products yet</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 mb-6">Get started by adding your first product</p>
-              <button
-                onClick={openAddModal}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Add Product
-              </button>
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
+                {products.length === 0 ? "No products yet" : "No matching products found"}
+              </h3>
+              <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+                {products.length === 0 ? "Get started by adding your first product" : "Try searching with a different search term"}
+              </p>
+              {products.length === 0 && (
+                <button
+                  onClick={openAddModal}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Product
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">

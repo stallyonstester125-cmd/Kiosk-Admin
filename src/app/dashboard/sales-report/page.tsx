@@ -62,11 +62,15 @@ export default function SalesReportPage() {
   
   const filteredRows = useMemo(() => {
     const filtered = filteredData(rows);
-    return filtered.sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       const result = a.price - b.price;
       return sortOption === "low-high" ? result : -result;
     });
   }, [rows, sortOption, filteredData]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filteredRows.length]);
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const currentRows = filteredRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

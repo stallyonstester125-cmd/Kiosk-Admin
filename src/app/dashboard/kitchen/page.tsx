@@ -48,16 +48,16 @@ const STATUS_CONFIG: Record<KitchenStatus, {
 // FIFO next-step map (matches server-side ALLOWED_TRANSITIONS)
 const NEXT_STATUS: Record<KitchenStatus, KitchenStatus | "completed" | null> = {
   received: "confirmed",
-  confirmed: "preparing",
-  preparing: "ready",
+  confirmed: "completed",
+  preparing: "completed",
   ready: "completed",
 };
 
 const NEXT_LABEL: Record<string, string> = {
   received: "Confirm Order",
-  confirmed: "Start Preparing",
-  preparing: "Mark Ready",
-  ready: "Complete",
+  confirmed: "Mark Completed",
+  preparing: "Mark Completed",
+  ready: "Mark Completed",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function OrderCard({
   advancing: boolean;
 }) {
   const status = order.status as KitchenStatus;
-  const cfg = STATUS_CONFIG[status];
+  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.received;
   const next = isKitchenStatus(status) ? NEXT_STATUS[status] : null;
 
   return (
@@ -149,23 +149,16 @@ function OrderCard({
         <button
           onClick={() => onAdvance(order._id, next)}
           disabled={advancing}
-          className="w-full py-2.5 rounded-lg font-semibold text-sm transition-colors bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-colors ${
+            status === "confirmed" || status === "preparing" || status === "ready"
+              ? "bg-green-600 hover:bg-green-700 text-white"
+              : "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-100"
+          } disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
         >
           {advancing ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : null}
           {NEXT_LABEL[status] ?? "Advance"}
-        </button>
-      )}
-
-      {status === "ready" && (
-        <button
-          onClick={() => onAdvance(order._id, "completed")}
-          disabled={advancing}
-          className="w-full py-2.5 rounded-lg font-semibold text-sm bg-green-600 hover:bg-green-700 text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {advancing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-          Mark Completed
         </button>
       )}
     </div>
@@ -177,8 +170,6 @@ const FILTER_TABS = [
   { key: "all", label: "All Active" },
   { key: "received", label: "Received" },
   { key: "confirmed", label: "Confirmed" },
-  { key: "preparing", label: "Preparing" },
-  { key: "ready", label: "Ready" },
 ] as const;
 
 type FilterKey = (typeof FILTER_TABS)[number]["key"];
@@ -275,8 +266,8 @@ export default function KitchenPage() {
       )}
 
       {/* Status summary strip */}
-      <div className="grid grid-cols-4 gap-3">
-        {(["received", "confirmed", "preparing", "ready"] as KitchenStatus[]).map((s) => {
+      <div className="grid grid-cols-2 gap-3">
+        {(["received", "confirmed"] as KitchenStatus[]).map((s) => {
           const cfg = STATUS_CONFIG[s];
           const count = countByStatus(s);
           return (

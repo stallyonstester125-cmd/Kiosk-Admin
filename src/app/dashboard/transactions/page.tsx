@@ -32,7 +32,11 @@ export default function TransactionsPage() {
   const [page, setPage] = useState(1);
 
   const { filteredData } = useSearch();
-  const filteredOrders = useMemo(() => filteredData(orders), [orders]);
+  const filteredOrders = useMemo(() => filteredData(orders), [orders, filteredData]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filteredOrders.length]);
 
   const loadData = async () => {
     try {
@@ -102,6 +106,7 @@ export default function TransactionsPage() {
               {/* Red header band */}
               <thead className="bg-[var(--brand-orange)] text-xs font-semibold uppercase tracking-wider text-white">
                 <tr>
+                  <th className="px-6 py-4">Customer Name</th>
                   <th className="px-6 py-4">Order Number</th>
                   <th className="px-6 py-4">Date</th>
                   <th className="px-6 py-4">Payment</th>
@@ -111,6 +116,9 @@ export default function TransactionsPage() {
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
                 {currentRows.map((order) => (
                   <tr key={order._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">
+                    <td className="px-6 py-4 font-medium text-zinc-900 dark:text-white">
+                      {order.customerName}
+                    </td>
                     <td className="px-6 py-4 font-medium text-zinc-900 dark:text-white">
                       {order.orderNumber}
                     </td>
@@ -133,6 +141,13 @@ export default function TransactionsPage() {
                     </td>
                   </tr>
                 ))}
+                {filteredOrders.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-10 text-center text-zinc-500">
+                      No matching transactions found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

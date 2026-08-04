@@ -1,15 +1,19 @@
 "use client";
 
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Edit, Trash2, Plus, X, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
 import { fetchCategories, createCategory, updateCategory, deleteCategory, Category } from "@/lib/admin-api";
+import { useSearch } from "@/context/SearchContext";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { filteredData } = useSearch();
+  const filteredCategories = useMemo(() => filteredData(categories), [categories, filteredData]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -184,22 +188,28 @@ export default function CategoriesPage() {
       </div>
 
       <div className="relative">
-        {categories.length === 0 ? (
+        {filteredCategories.length === 0 ? (
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 p-12 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
               <svg className="w-8 h-8 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">No categories yet</h3>
-            <p className="text-zinc-500 dark:text-zinc-400 mb-6">Get started by adding your first category</p>
-            <button
-              onClick={openAddModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Category
-            </button>
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
+              {categories.length === 0 ? "No categories yet" : "No matching categories found"}
+            </h3>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+              {categories.length === 0 ? "Get started by adding your first category" : "Try searching with a different search term"}
+            </p>
+            {categories.length === 0 && (
+              <button
+                onClick={openAddModal}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--brand-orange)] text-white font-semibold rounded-lg hover:bg-[var(--brand-orange-hover)] transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Category
+              </button>
+            )}
           </div>
         ) : (
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 overflow-hidden">
@@ -221,7 +231,7 @@ export default function CategoriesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
-                {categories.map((category) => (
+                {filteredCategories.map((category) => (
                   <tr key={category._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="font-medium text-zinc-900 dark:text-white">{category.name}</span>

@@ -9,6 +9,24 @@ type SearchConfig = {
   filterFn: (data: any[], query: string) => any[];
 };
 
+const genericFilter = (data: any[], query: string) => {
+  const q = query.toLowerCase().trim();
+  if (!q) return data;
+  return data.filter((item) => {
+    if (!item) return false;
+    return Object.values(item).some((val) => {
+      if (val === null || val === undefined) return false;
+      if (typeof val === "string" || typeof val === "number") {
+        return val.toString().toLowerCase().includes(q);
+      }
+      if (typeof val === "object") {
+        return JSON.stringify(val).toLowerCase().includes(q);
+      }
+      return false;
+    });
+  });
+};
+
 const PAGE_SEARCH_CONFIG: Record<string, SearchConfig> = {
   "/dashboard/products": {
     placeholder: "Search products...",
@@ -19,7 +37,7 @@ const PAGE_SEARCH_CONFIG: Record<string, SearchConfig> = {
       return data.filter((item) =>
         item.name?.toLowerCase().includes(q) ||
         item.description?.toLowerCase().includes(q) ||
-        item.category?.name?.toLowerCase().includes(q) ||
+        (typeof item.category === "string" ? item.category.toLowerCase().includes(q) : item.category?.name?.toLowerCase().includes(q)) ||
         item.price?.toString().includes(q)
       );
     },
@@ -33,13 +51,13 @@ const PAGE_SEARCH_CONFIG: Record<string, SearchConfig> = {
       return data.filter((item) =>
         item.orderNumber?.toString().toLowerCase().includes(q) ||
         item.customerName?.toLowerCase().includes(q) ||
-        item.items?.some((i: any) => i.name?.toLowerCase().includes(q))
+        (Array.isArray(item.items) && item.items.some((i: any) => i.name?.toLowerCase().includes(q)))
       );
     },
   },
   "/dashboard/transactions": {
     placeholder: "Search transactions...",
-    searchFields: ["orderNumber", "customerName", "paymentMethod"],
+    searchFields: ["orderNumber", "customerName", "paymentMethod", "total"],
     filterFn: (data: any[], query: string) => {
       const q = query.toLowerCase().trim();
       if (!q) return data;
@@ -76,10 +94,22 @@ const PAGE_SEARCH_CONFIG: Record<string, SearchConfig> = {
       );
     },
   },
+  "/dashboard/categories": {
+    placeholder: "Search categories...",
+    searchFields: ["name", "displayOrder"],
+    filterFn: (data: any[], query: string) => {
+      const q = query.toLowerCase().trim();
+      if (!q) return data;
+      return data.filter((item) =>
+        item.name?.toLowerCase().includes(q) ||
+        item.displayOrder?.toString().includes(q)
+      );
+    },
+  },
   "/dashboard": {
     placeholder: "Search...",
     searchFields: [],
-    filterFn: (data: any[], query: string) => data,
+    filterFn: genericFilter,
   },
 };
 
@@ -102,22 +132,38 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const cleanPath = pathname
+    ? pathname.length > 1 && pathname.endsWith("/")
+      ? pathname.slice(0, -1)
+      : pathname
+    : "/dashboard";
+
+  const defaultConfig: SearchConfig = {
+    placeholder: "Search...",
+    searchFields: [],
+    filterFn: genericFilter,
+  };
   
-  const config = isClient ? (PAGE_SEARCH_CONFIG[pathname] || PAGE_SEARCH_CONFIG["/dashboard"]) : PAGE_SEARCH_CONFIG["/dashboard"];
+  const config = isClient
+    ? PAGE_SEARCH_CONFIG[cleanPath] || defaultConfig
+    : PAGE_SEARCH_CONFIG["/dashboard"] || defaultConfig;
   
   // Clear query when page changes
   useEffect(() => {
     if (isClient) {
       setQuery("");
     }
-  }, [pathname, isClient]);
+  }, [cleanPath, isClient]);
 
   const clearQuery = useCallback(() => setQuery(""), []);
   
   const filteredData = useCallback(<T,>(data: T[]) => {
-    if (!isClient) return data;
+    if (!data || !Array.isArray(data)) return [];
+    const q = query.toLowerCase().trim();
+    if (!q) return data;
     return config.filterFn(data as any[], query) as T[];
-  }, [config, query, isClient]);
+  }, [config, query]);
 
   return (
     <SearchContext.Provider value={{ query, setQuery, clearQuery, config, filteredData }}>
