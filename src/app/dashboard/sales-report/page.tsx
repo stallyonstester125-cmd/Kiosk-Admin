@@ -86,7 +86,7 @@ export default function SalesReportPage() {
                   ))}
                   <th className="px-6 py-4">
                     <button onClick={toggleSort} className="inline-flex items-center gap-1">
-                      Price<ArrowUpDown className="h-3.5 w-3.5" />
+                      Price<ArrowUpDown className={`h-3.5 w-3.5 transition-transform ${sortDirection === "desc" ? "rotate-180" : ""}`} />
                     </button>
                   </th>
                   <th className="px-6 py-4">Date</th>
