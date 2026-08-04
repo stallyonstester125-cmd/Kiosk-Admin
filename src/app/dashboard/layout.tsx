@@ -11,7 +11,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { admin, loading, logout } = useAuth();
+  const { admin, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -46,10 +46,10 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <AdminTopBar />
-      <div className="flex pt-20">
-        <AdminSidebar role={admin.role} />
-        <main className="flex-1 ml-64 p-6 sm:p-8 lg:ml-64 min-h-[calc(100vh-80px)]">
+      <AdminSidebar role={admin.role} />
+      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+        <AdminTopBar />
+        <main className="flex-1 p-6 sm:p-8 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>
