@@ -147,7 +147,7 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4  space-y-2 overflow-y-auto pb-[42vh]">
+      <nav className="flex-1 pt-0 px-4 space-y-2">
         <div className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-3 py-2">
           {isAdmin ? "MAIN" : "KITCHEN"}
         </div>
@@ -225,7 +225,7 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
       </nav>
 
       {/* Bottom - wave.svg */}
-      <div className="absolute bottom-0 left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
+      <div className="absolute bottom-[-15vh] left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
         <Image
           src="/images/wave.svg"
           alt=""
