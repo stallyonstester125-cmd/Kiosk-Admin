@@ -2,7 +2,7 @@
 
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowUpDown, ChevronDown, Loader2 } from "lucide-react";
+import { ArrowUpDown, Loader2 } from "lucide-react";
 import { fetchOrders, Order } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
@@ -16,7 +16,7 @@ export default function SalesReportPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState<{ field: "date" | "price"; direction: "asc" | "desc" }>({ field: "date", direction: "desc" });
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const { filteredData } = useSearch();
 
@@ -48,15 +48,15 @@ export default function SalesReportPage() {
   const filteredRows = useMemo(() => {
     const filtered = filteredData(rows);
     return filtered.sort((a, b) => {
-      const result = sort.field === "date" ? a.date.getTime() - b.date.getTime() : a.price - b.price;
-      return sort.direction === "asc" ? result : -result;
+      const result = a.price - b.price;
+      return sortDirection === "asc" ? result : -result;
     });
-  }, [rows, sort, filteredData]);
+  }, [rows, sortDirection, filteredData]);
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
   const currentRows = filteredRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const netSales = filteredRows.reduce((sum, row) => sum + row.price, 0);
-  const toggleSort = (field: "date" | "price") => setSort((current) => ({ field, direction: current.field === field && current.direction === "desc" ? "asc" : "desc" }));
+  const toggleSort = () => setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
 
   if (loading) return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[var(--brand-orange)]" /></div>;
   if (error) return <div className="py-12 text-center"><p className="text-red-600 dark:text-red-400">Error: {error}</p><button onClick={() => void loadData()} className="mt-4 rounded-lg bg-[var(--brand-orange)] px-4 py-2 text-white hover:bg-[var(--brand-orange-hover)]">Retry</button></div>;
@@ -81,22 +81,15 @@ export default function SalesReportPage() {
                 <tr>
                   {["Customer", "Order ID", "Product", "Quantity"].map((label) => (
                     <th key={label} className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1">
-                        {label}
-                        <ChevronDown className="h-3.5 w-3.5" />
-                      </span>
+                      {label}
                     </th>
                   ))}
                   <th className="px-6 py-4">
-                    <button onClick={() => toggleSort("price")} className="inline-flex items-center gap-1">
+                    <button onClick={toggleSort} className="inline-flex items-center gap-1">
                       Price<ArrowUpDown className="h-3.5 w-3.5" />
                     </button>
                   </th>
-                  <th className="px-6 py-4">
-                    <button onClick={() => toggleSort("date")} className="inline-flex items-center gap-1">
-                      Date<ArrowUpDown className="h-3.5 w-3.5" />
-                    </button>
-                  </th>
+                  <th className="px-6 py-4">Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
