@@ -138,17 +138,6 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <ChartGradient />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <span className="text-xs font-semibold text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] uppercase tracking-wider">
-          FOOD
-        </span>
-        <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
-          <span>Home</span>
-          <span>/</span>
-          <span className="font-medium">Dashboard</span>
-        </nav>
-      </div>
-
       <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 p-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">Transaction Graph</h3>
