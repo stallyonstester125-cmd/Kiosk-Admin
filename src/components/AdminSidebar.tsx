@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Layers, ClipboardList, CreditCard, BarChart3, ChevronRight, UtensilsCrossed, Users, LogOut } from "lucide-react";
+import { Layers, ClipboardList, CreditCard, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
 
 type NavItem = {
@@ -87,7 +87,7 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
-  const { admin, logout } = useAuth();
+  const { admin } = useAuth();
 
   const isAdmin = role === "admin";
   const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin);
@@ -98,16 +98,6 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
   const handleMenuToggle = (key: string) => {
     setExpandedMenu(expandedMenu === key ? null : key);
   };
-
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  const initials = admin?.name
-    ? admin.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "";
-
-  const roleLabel = admin?.role === "staff" ? "Staff" : "Admin";
 
   const renderIcon = (item: NavItem, isActiveItem: boolean) => {
     if (item.iconType === "image") {
@@ -145,13 +135,13 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
   return (
     <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 fixed top-0 left-0 h-full z-40 flex flex-col">
       {/* Logo at top of sidebar */}
-      <div className="flex items-center justify-center h-20 px-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex items-center justify-center h-24 px-4">
         <Image
           src="/images/logo.svg"
           alt="QuickCrave Logo"
-          height={36}
-          width={150}
-          className="h-9 w-auto"
+          height={48}
+          width={200}
+          className="h-12 w-auto"
           priority
         />
       </div>
@@ -234,44 +224,17 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
         })}
       </nav>
 
-      {/* Bottom - User info & Logout */}
-      <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
-        {admin && (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[var(--brand-orange)] flex items-center justify-center text-white text-xs font-bold select-none ring-1 ring-white/30">
-              {admin?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "AD"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
-                {admin.name}
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">
-                {admin.role}
-              </p>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={handleLogout}
-          className="w-full mt-4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors"
-        >
-          <LogOut className="w-4 h-4" strokeWidth={2} />
-          <span>Logout</span>
-        </button>
+      {/* Bottom - wave.svg */}
+      <div className="absolute bottom-0 left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
+        <Image
+          src="/images/wave.svg"
+          alt=""
+          fill
+          className="object-cover"
+          priority
+          sizes="256px"
+        />
       </div>
     </aside>
   );
-}
-
-function handleMenuToggle(key: string) {
-  // This is a placeholder - actual implementation uses setExpandedMenu from the component
-}
-
-function renderIcon(item: any, isActiveItem: boolean) {
-  // Placeholder
-  return null;
-}
-
-function handleLogout() {
-  // Placeholder
 }
