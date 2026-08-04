@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { fetchOrders, Order } from "@/lib/admin-api";
+import { useSearch } from "@/context/SearchContext";
 
 const PAGE_SIZE = 15;
 
@@ -30,6 +31,9 @@ export default function TransactionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
+  const { filteredData } = useSearch();
+  const filteredOrders = useMemo(() => filteredData(orders), [orders]);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -47,8 +51,8 @@ export default function TransactionsPage() {
 
   useEffect(() => { void loadData(); }, []);
 
-  const pageCount = Math.max(1, Math.ceil(orders.length / PAGE_SIZE));
-  const currentRows = orders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageCount = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE));
+  const currentRows = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   if (loading) {
     return (

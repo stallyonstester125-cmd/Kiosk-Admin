@@ -1,11 +1,12 @@
 "use client";
 
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { Edit, Trash2, Plus, X, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
 import { fetchProducts, fetchCategories, createProduct, updateProduct, deleteProduct, Product, Category } from "@/lib/admin-api";
+import { useSearch } from "@/context/SearchContext";
 
 interface FormData {
   name: string;
@@ -37,6 +38,9 @@ export default function ProductsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  const { filteredData } = useSearch();
+  const filteredProducts = useMemo(() => filteredData(products), [products]);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -278,7 +282,7 @@ export default function ProductsPage() {
         </div>
 
         <div className="relative">
-          {products.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 p-12 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
                 <svg className="w-8 h-8 text-zinc-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,7 +301,7 @@ export default function ProductsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <article
                   key={product._id}
                   className="bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 overflow-hidden hover:shadow-lg transition-shadow group"

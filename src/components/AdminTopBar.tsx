@@ -2,11 +2,13 @@
 
 import { useAuth } from "@/context/AdminAuthContext";
 import { useState } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Search, X } from "lucide-react";
+import { useSearch } from "@/context/SearchContext";
 
 export default function AdminTopBar() {
   const { admin, logout } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
+  const { query, setQuery, clearQuery, config } = useSearch();
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -23,16 +25,38 @@ export default function AdminTopBar() {
 
   const roleLabel = admin?.role === "staff" ? "Staff" : "Admin";
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
+
   return (
     <header className="h-16 bg-[var(--brand-orange)] fixed top-0 left-64 right-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-      {/* Left - Page title could go here if needed */}
-      <div className="flex items-center gap-4">
-        {/* Empty space where logo used to be */}
+      {/* Left — Search */}
+      <div className="flex items-center gap-4 flex-1 max-w-md">
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" strokeWidth={2} />
+          <input
+            type="text"
+            value={query}
+            onChange={handleSearchChange}
+            placeholder={config.placeholder}
+            className="w-full pl-10 pr-10 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 text-sm transition-colors"
+          />
+          {query && (
+            <button
+              onClick={clearQuery}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="w-5 h-5" strokeWidth={2} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Right — user info + logout */}
       {admin && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {/* Avatar + name */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-bold select-none ring-1 ring-white/30">

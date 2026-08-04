@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, RefreshCw, Clock, UtensilsCrossed } from "lucide-react";
 import { fetchKitchenOrders, updateOrderStatus, Order } from "@/lib/admin-api";
+import { useSearch } from "@/context/SearchContext";
 
 // ─── Status config ────────────────────────────────────────────────────────────
 type KitchenStatus = "received" | "confirmed" | "preparing" | "ready";
@@ -191,6 +192,9 @@ export default function KitchenPage() {
   const [advancing, setAdvancing] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
+  const { filteredData } = useSearch();
+  const filteredOrders = useMemo(() => filteredData(orders), [orders]);
+
   const loadOrders = useCallback(async (silent = false) => {
     try {
       if (!silent) setLoading(true);
@@ -227,9 +231,9 @@ export default function KitchenPage() {
   };
 
   const displayOrders =
-    filter === "all" ? orders : orders.filter((o) => o.status === filter);
+    filter === "all" ? filteredOrders : filteredOrders.filter((o) => o.status === filter);
 
-  const countByStatus = (s: string) => orders.filter((o) => o.status === s).length;
+  const countByStatus = (s: string) => filteredOrders.filter((o) => o.status === s).length;
 
   if (loading) {
     return (

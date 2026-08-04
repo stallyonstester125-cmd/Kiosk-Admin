@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Loader2, Plus, X, Eye, EyeOff, UserCheck, UserX, KeyRound } from "lucide-react";
 import {
   fetchStaff,
@@ -10,6 +10,7 @@ import {
   resetStaffPassword,
   StaffMember,
 } from "@/lib/admin-api";
+import { useSearch } from "@/context/SearchContext";
 
 // ─── Create Modal ─────────────────────────────────────────────────────────────
 function CreateStaffModal({
@@ -202,6 +203,9 @@ export default function StaffPage() {
   const [resetTarget, setResetTarget] = useState<StaffMember | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
+  const { filteredData } = useSearch();
+  const filteredStaff = useMemo(() => filteredData(staff), [staff]);
+
   const load = async () => {
     try {
       setLoading(true);
@@ -270,7 +274,7 @@ export default function StaffPage() {
 
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-md">
-        {staff.length === 0 ? (
+        {filteredStaff.length === 0 ? (
           <div className="py-16 text-center text-zinc-400 dark:text-zinc-500">
             <p className="text-lg font-medium">No staff members yet</p>
             <p className="text-sm mt-1">Click &ldquo;Add Staff&rdquo; to create an account.</p>
@@ -289,7 +293,7 @@ export default function StaffPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
-                {staff.map((member) => {
+                {filteredStaff.map((member) => {
                   const active = member.isActive !== false;
                   return (
                     <tr key={member._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">

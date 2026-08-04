@@ -117,8 +117,6 @@ export default function DashboardPage() {
   const monthlyOrdersCount = currentMonthOrders.length;
   const monthlySalesTotal = currentMonthOrders.reduce((sum, o) => sum + o.total, 0);
 
-  const foodProduct = products.find((p) => p.image && p.image.trim() !== "");
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -240,29 +238,6 @@ export default function DashboardPage() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">monthly sales</p>
           </div>
         </div>
-      </div>
-
-      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
-        {foodProduct?.image ? (
-          <div className="relative aspect-[4/3] max-w-md">
-            <Image
-              src={foodProduct.image}
-              alt={foodProduct.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              <span className="w-2 h-2 rounded-full bg-red-600"></span>
-              <span className="w-2 h-2 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
-              <span className="w-2 h-2 rounded-full bg-zinc-300 dark:bg-zinc-600"></span>
-            </div>
-          </div>
-        ) : (
-          <div className="aspect-[4/3] flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
-            <p className="text-zinc-500 dark:text-zinc-400">No product image available</p>
-          </div>
-        )}
       </div>
     </div>
   );
