@@ -49,7 +49,7 @@ export default function DashboardLayout({
       <AdminSidebar role={admin.role} />
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
         <AdminTopBar />
-        <main className="flex-1 p-6 sm:p-8 pt-20 min-h-[calc(100vh-4rem)]">
+        <main className="flex-1 p-6 sm:p-8 pt-28 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>
