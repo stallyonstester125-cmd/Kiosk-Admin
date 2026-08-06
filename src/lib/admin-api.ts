@@ -392,3 +392,57 @@ export async function duplicateCoupon(id: string): Promise<Coupon> {
   if (!res.ok || !json.success) throw new Error(json.message || 'Failed to duplicate coupon');
   return json.data as Coupon;
 }
+
+export async function downloadSalesReport(params: Record<string, string>): Promise<void> {
+  const query = new URLSearchParams(params).toString();
+  const url = `${API_BASE_URL}/orders/export/sales?${query}`;
+  const res = await fetch(url, { credentials: 'include' });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.message || 'Failed to export sales report');
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get('Content-Disposition');
+  let filename = `Sales_Report_${new Date().toISOString().slice(0, 10)}`;
+  if (disposition && disposition.includes('filename=')) {
+    const parts = disposition.split('filename=');
+    if (parts[1]) filename = parts[1].replace(/"/g, '').trim();
+  } else {
+    const ext = params.exportType === 'xlsx' ? 'xlsx' : params.exportType === 'pdf' ? 'pdf' : 'csv';
+    filename += `.${ext}`;
+  }
+
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+export async function downloadTransactionsReport(params: Record<string, string>): Promise<void> {
+  const query = new URLSearchParams(params).toString();
+  const url = `${API_BASE_URL}/orders/export/transactions?${query}`;
+  const res = await fetch(url, { credentials: 'include' });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.message || 'Failed to export transactions report');
+  }
+  const blob = await res.blob();
+  const disposition = res.headers.get('Content-Disposition');
+  let filename = `Transaction_Report_${new Date().toISOString().slice(0, 10)}`;
+  if (disposition && disposition.includes('filename=')) {
+    const parts = disposition.split('filename=');
+    if (parts[1]) filename = parts[1].replace(/"/g, '').trim();
+  } else {
+    const ext = params.exportType === 'xlsx' ? 'xlsx' : params.exportType === 'pdf' ? 'pdf' : 'csv';
+    filename += `.${ext}`;
+  }
+
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}

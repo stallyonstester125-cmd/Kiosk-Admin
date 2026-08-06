@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { ArrowUpDown, Loader2, ChevronDown, Percent } from "lucide-react";
-import { fetchOrders, Order } from "@/lib/admin-api";
+import { ArrowUpDown, Loader2, ChevronDown, Percent, Download, FileSpreadsheet, FileText, Sheet } from "lucide-react";
+import { fetchOrders, Order, downloadSalesReport } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
 const PAGE_SIZE = 15;
@@ -21,20 +21,27 @@ export default function SalesReportPage() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
 
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
   const { query, filteredData } = useSearch();
 
-  // Close menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sortMenuRef.current && !sortMenuRef.current.contains(event.target as Node)) {
         setShowSortMenu(false);
       }
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
     };
-    if (showSortMenu) {
+    if (showSortMenu || showExportMenu) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showSortMenu]);
+  }, [showSortMenu, showExportMenu]);
 
   const loadData = async () => {
     try {
@@ -106,6 +113,20 @@ export default function SalesReportPage() {
     setShowSortMenu(false);
   };
 
+  const handleExport = async (exportType: "csv" | "xlsx" | "pdf") => {
+    setShowExportMenu(false);
+    setIsExporting(true);
+    try {
+      const params: Record<string, string> = { exportType };
+      if (query) params.search = query;
+      await downloadSalesReport(params);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -138,11 +159,58 @@ export default function SalesReportPage() {
             Analyze gross sales, applied coupon discounts, collected taxes, and net revenue.
           </p>
         </div>
-        <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
-          <span>Home</span>
-          <span>/</span>
-          <span className="font-medium">Sales Report</span>
-        </nav>
+        <div className="flex items-center gap-3">
+          {/* Export Dropdown */}
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              id="sales-export-btn"
+              onClick={() => setShowExportMenu((v) => !v)}
+              disabled={isExporting}
+              className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+            >
+              {isExporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              {isExporting ? "Exporting..." : "Export"}
+              <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+            </button>
+            {showExportMenu && (
+              <div className="absolute right-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-zinc-200 bg-white py-1.5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
+                <button
+                  id="sales-export-csv"
+                  onClick={() => void handleExport("csv")}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                >
+                  <FileText className="h-4 w-4 text-green-600" />
+                  Export as CSV
+                </button>
+                <button
+                  id="sales-export-xlsx"
+                  onClick={() => void handleExport("xlsx")}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                >
+                  <Sheet className="h-4 w-4 text-emerald-600" />
+                  Export as Excel
+                </button>
+                <button
+                  id="sales-export-pdf"
+                  onClick={() => void handleExport("pdf")}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                >
+                  <FileSpreadsheet className="h-4 w-4 text-red-500" />
+                  Export as PDF
+                </button>
+              </div>
+            )}
+          </div>
+          <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
+            <span>Home</span>
+            <span>/</span>
+            <span className="font-medium">Sales Report</span>
+          </nav>
+        </div>
       </div>
 
       {/* Main Table */}

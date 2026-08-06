@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { Loader2, X, Receipt, ShoppingBag } from "lucide-react";
-import { fetchOrders, Order } from "@/lib/admin-api";
+import { useEffect, useState, useMemo, useRef } from "react";
+import { Loader2, X, Receipt, ShoppingBag, Download, ChevronDown, FileText, FileSpreadsheet, Sheet } from "lucide-react";
+import { fetchOrders, Order, downloadTransactionsReport } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
 const PAGE_SIZE = 15;
@@ -31,6 +31,10 @@ export default function TransactionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
 
   const { query, filteredData } = useSearch();
   const filteredOrders = useMemo(() => {
@@ -70,6 +74,33 @@ export default function TransactionsPage() {
     void loadData();
   }, []);
 
+  // Close export menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    if (showExportMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showExportMenu]);
+
+  const handleExport = async (exportType: "csv" | "xlsx" | "pdf") => {
+    setShowExportMenu(false);
+    setIsExporting(true);
+    try {
+      const params: Record<string, string> = { exportType };
+      if (query) params.search = query;
+      await downloadTransactionsReport(params);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const pageCount = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE));
   const currentRows = filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -106,11 +137,58 @@ export default function TransactionsPage() {
               View sales histories, applied coupons, and order invoice summaries.
             </p>
           </div>
-          <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
-            <span>Home</span>
-            <span>/</span>
-            <span className="font-medium">Transaction and Analytics</span>
-          </nav>
+          <div className="flex items-center gap-3">
+            {/* Export Dropdown */}
+            <div className="relative" ref={exportMenuRef}>
+              <button
+                id="transactions-export-btn"
+                onClick={() => setShowExportMenu((v) => !v)}
+                disabled={isExporting}
+                className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+              >
+                {isExporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                {isExporting ? "Exporting..." : "Export"}
+                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+              </button>
+              {showExportMenu && (
+                <div className="absolute right-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-zinc-200 bg-white py-1.5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
+                  <button
+                    id="transactions-export-csv"
+                    onClick={() => void handleExport("csv")}
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                  >
+                    <FileText className="h-4 w-4 text-green-600" />
+                    Export as CSV
+                  </button>
+                  <button
+                    id="transactions-export-xlsx"
+                    onClick={() => void handleExport("xlsx")}
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                  >
+                    <Sheet className="h-4 w-4 text-emerald-600" />
+                    Export as Excel
+                  </button>
+                  <button
+                    id="transactions-export-pdf"
+                    onClick={() => void handleExport("pdf")}
+                    className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                  >
+                    <FileSpreadsheet className="h-4 w-4 text-red-500" />
+                    Export as PDF
+                  </button>
+                </div>
+              )}
+            </div>
+            <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
+              <span>Home</span>
+              <span>/</span>
+              <span className="font-medium">Transaction and Analytics</span>
+            </nav>
+          </div>
         </div>
 
         {/* Table card */}
