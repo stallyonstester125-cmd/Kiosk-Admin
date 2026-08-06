@@ -43,6 +43,12 @@ export interface Order {
   status: 'received' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt: string;
+  coupon_code?: string | null;
+  discount_amount?: number;
+  subtotal_before_discount?: number;
+  subtotal_after_discount?: number;
+  tax_after_discount?: number;
+  grand_total?: number;
 }
 
 export interface Category {
@@ -278,4 +284,111 @@ export async function resetStaffPassword(id: string, password: string): Promise<
   });
   const json = await res.json();
   if (!res.ok || !json.success) throw new Error(json.message || 'Failed to reset password');
+}
+
+// ─── Coupons ─────────────────────────────────────────────────────────────────
+
+export interface Coupon {
+  _id: string;
+  code: string;
+  description?: string | null;
+  discount_type: 'percentage' | 'fixed';
+  percentage?: number | null;
+  fixed_amount?: number | null;
+  minimum_order?: number | null;
+  maximum_discount?: number | null;
+  usage_limit?: number | null;
+  used_count: number;
+  per_customer_limit?: number | null;
+  starts_at: string;
+  expires_at: string;
+  first_order_only: boolean;
+  stackable: boolean;
+  status: 'active' | 'inactive';
+  created_by?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchCoupons(status?: string, discountType?: string): Promise<Coupon[]> {
+  let url = `${API_BASE_URL}/coupons`;
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (discountType) params.append('discountType', discountType);
+  if (params.toString()) url += `?${params.toString()}`;
+
+  const res = await fetch(url, { credentials: 'include', cache: 'no-store' });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to fetch coupons');
+  return json.data as Coupon[];
+}
+
+export async function fetchCouponById(id: string): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/coupons/${id}`, { credentials: 'include', cache: 'no-store' });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to fetch coupon');
+  return json.data as Coupon;
+}
+
+export async function createCoupon(payload: Partial<Coupon>): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/coupons`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to create coupon');
+  return json.data as Coupon;
+}
+
+export async function updateCoupon(id: string, payload: Partial<Coupon>): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/coupons/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to update coupon');
+  return json.data as Coupon;
+}
+
+export async function deleteCoupon(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/coupons/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to delete coupon');
+}
+
+export async function enableCoupon(id: string): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/coupons/${id}/enable`, {
+    method: 'PATCH',
+    credentials: 'include',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to enable coupon');
+  return json.data as Coupon;
+}
+
+export async function disableCoupon(id: string): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/coupons/${id}/disable`, {
+    method: 'PATCH',
+    credentials: 'include',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to disable coupon');
+  return json.data as Coupon;
+}
+
+export async function duplicateCoupon(id: string): Promise<Coupon> {
+  const res = await fetch(`${API_BASE_URL}/coupons/${id}/duplicate`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to duplicate coupon');
+  return json.data as Coupon;
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Layers, ClipboardList, CreditCard, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
+import { Layers, ClipboardList, Ticket, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
 
 type NavItem = {
@@ -55,11 +55,11 @@ const navItems: NavItem[] = [
     adminOnly: true,
   },
   {
-    key: "paymentSettings",
-    label: "Payment Settings",
-    href: "/dashboard/payment-settings",
+    key: "coupons",
+    label: "Coupons",
+    href: "/dashboard/coupons",
     iconType: "lucide",
-    icon: CreditCard,
+    icon: Ticket,
     adminOnly: true,
   },
   {

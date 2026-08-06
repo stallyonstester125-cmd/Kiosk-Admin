@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
@@ -12,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Percent } from "lucide-react";
 import { fetchOrders, fetchProducts, Order, Product } from "@/lib/admin-api";
 
 const ACCENT_COLOR = "#C41E3A";
@@ -115,7 +115,12 @@ export default function DashboardPage() {
   const currentMonthOrders = getCurrentMonthOrders(orders);
   const totalOrders = orders.length;
   const monthlyOrdersCount = currentMonthOrders.length;
+  
+  // Calculate total monthly sales after discount (uses o.total which is post-coupon)
   const monthlySalesTotal = currentMonthOrders.reduce((sum, o) => sum + o.total, 0);
+
+  // Total discounts given
+  const totalDiscountsGiven = orders.reduce((sum, o) => sum + (o.discount_amount ?? 0), 0);
 
   if (loading) {
     return (
@@ -190,7 +195,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Card 1 */}
         <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 flex items-center gap-4">
           <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center">
             <Image
@@ -207,6 +213,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Card 2 */}
         <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 flex items-center gap-4">
           <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center">
             <Image
@@ -223,6 +230,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Card 3 */}
         <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 flex items-center gap-4">
           <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center">
             <Image
@@ -234,8 +242,19 @@ export default function DashboardPage() {
             />
           </div>
           <div>
-            <p className="text-3xl font-bold text-zinc-900 dark:text-white">Total: {formatCurrency(monthlySalesTotal)}</p>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white">{formatCurrency(monthlySalesTotal)}</p>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">monthly sales</p>
+          </div>
+        </div>
+
+        {/* Card 4: Total Discounts Given */}
+        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 flex items-center gap-4">
+          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-red-50 dark:bg-red-950/20 rounded-full">
+            <Percent className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-zinc-900 dark:text-white">{formatCurrency(totalDiscountsGiven)}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">total discounts given</p>
           </div>
         </div>
       </div>
