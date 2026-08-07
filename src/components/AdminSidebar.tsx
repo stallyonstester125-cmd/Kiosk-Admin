@@ -7,6 +7,12 @@ import Image from "next/image";
 import { Layers, ClipboardList, Ticket, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
 
+type SubNavItem = {
+  label: string;
+  href: string;
+  permission?: string; // Permission required for this sub-item
+};
+
 type NavItem = {
   key: string;
   label: string;
@@ -14,8 +20,9 @@ type NavItem = {
   iconType: "image" | "lucide";
   iconSrc?: string;
   icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  subItems?: Array<{ label: string; href: string }>;
+  subItems?: SubNavItem[];
   adminOnly?: boolean;
+  permission?: string; // Permission required to see this item
 };
 
 const navItems: NavItem[] = [
@@ -33,9 +40,10 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: Layers,
     adminOnly: true,
+    permission: "products",
     subItems: [
-      { label: "Product", href: "/dashboard/products" },
-      { label: "Category", href: "/dashboard/categories" },
+      { label: "Product", href: "/dashboard/products", permission: "products" },
+      { label: "Category", href: "/dashboard/categories", permission: "categories" },
     ],
   },
   {
@@ -45,6 +53,7 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: UtensilsCrossed,
     adminOnly: false,
+    permission: "kitchen",
   },
   {
     key: "salesReport",
@@ -53,6 +62,7 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: ClipboardList,
     adminOnly: true,
+    permission: "sales-report",
   },
   {
     key: "coupons",
@@ -61,6 +71,7 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: Ticket,
     adminOnly: true,
+    permission: "coupons",
   },
   {
     key: "transactions",
@@ -69,6 +80,7 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: BarChart3,
     adminOnly: true,
+    permission: "transactions",
   },
   {
     key: "staff",
@@ -77,20 +89,48 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: Users,
     adminOnly: true,
+    permission: "staff",
   },
 ];
 
 interface AdminSidebarProps {
   role?: string;
+  permissions?: string[];
 }
 
-export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
+export default function AdminSidebar({ role = "admin", permissions = [] }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const { admin } = useAuth();
 
   const isAdmin = role === "admin";
-  const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin);
+  
+  // Check if user has permission to see a nav item
+  const hasPermission = (item: NavItem): boolean => {
+    // Admin sees everything
+    if (isAdmin) return true;
+    // If item has no permission requirement, allow
+    if (!item.permission) return true;
+    // Check if user has the required permission
+    return permissions?.includes(item.permission) ?? false;
+  };
+
+  // Check if user has permission for a sub-item
+  const hasSubPermission = (sub: SubNavItem): boolean => {
+    // Admin sees everything
+    if (isAdmin) return true;
+    // If sub-item has no permission requirement, allow
+    if (!sub.permission) return true;
+    // Check if user has the required permission
+    return permissions?.includes(sub.permission) ?? false;
+  };
+
+  const visibleItems = navItems.filter((item) => {
+    // Check adminOnly first
+    if (item.adminOnly && !isAdmin) return false;
+    // Check permission
+    return hasPermission(item);
+  });
 
   const isActive = (href?: string) =>
     href && (pathname === href || pathname.startsWith(href + "/"));
@@ -156,7 +196,8 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
           const active = isActive(item.href);
 
           if (item.subItems) {
-            const subActive = item.subItems.some((sub) => isActive(sub.href));
+            const visibleSubItems = item.subItems.filter(sub => hasSubPermission(sub));
+            const subActive = visibleSubItems.some((sub) => isActive(sub.href));
             const isExpanded = expandedMenu === item.key;
             const isActiveItem = active || subActive;
 
@@ -181,9 +222,9 @@ export default function AdminSidebar({ role = "admin" }: AdminSidebarProps) {
                   />
                 </button>
 
-                {isExpanded && (
+                {isExpanded && visibleSubItems.length > 0 && (
                   <div className="mt-1 ml-6 space-y-1 border-l border-zinc-200 dark:border-zinc-800 pl-3">
-                    {item.subItems.map((sub) => {
+                    {visibleSubItems.map((sub) => {
                       const subItemActive = isActive(sub.href);
                       return (
                         <Link

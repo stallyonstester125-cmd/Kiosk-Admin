@@ -5,6 +5,7 @@ export interface AdminUser {
   name: string;
   email: string;
   role: 'admin' | 'staff';
+  permissions?: string[]; // Added this line for staff permissions
 }
 
 export interface StaffMember {
@@ -15,6 +16,7 @@ export interface StaffMember {
   isActive?: boolean;
   lastLoginAt?: string | null;
   createdAt: string;
+  permissions?: string[];  // Array of permissions like 'kitchen', 'products', etc.
 }
 
 export interface OrderItem {
@@ -89,7 +91,11 @@ export async function adminLogin(email: string, password: string): Promise<Admin
   if (!res.ok || !json.success) {
     throw new Error(json.message || 'Login failed');
   }
-  return json.data.admin as AdminUser;
+  const adminData = json.data.admin as AdminUser;
+  return {
+    ...adminData,
+    permissions: adminData.permissions || []
+  };
 }
 
 export async function adminMe(): Promise<AdminUser | null> {
@@ -98,7 +104,11 @@ export async function adminMe(): Promise<AdminUser | null> {
   });
   if (!res.ok) return null;
   const json = await res.json();
-  return json.data as AdminUser;
+  const adminData = json.data as AdminUser;
+  return {
+    ...adminData,
+    permissions: adminData.permissions || []
+  };
 }
 
 export async function adminLogout() {
@@ -239,7 +249,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
   return json.data as StaffMember[];
 }
 
-export async function createStaff(payload: { name: string; email: string; password: string }): Promise<StaffMember> {
+export async function createStaff(payload: { name: string; email: string; password: string; permissions?: string[] }): Promise<StaffMember> {
   const res = await fetch(`${API_BASE_URL}/staff`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -251,7 +261,7 @@ export async function createStaff(payload: { name: string; email: string; passwo
   return json.data as StaffMember;
 }
 
-export async function updateStaff(id: string, payload: { name?: string; email?: string }): Promise<StaffMember> {
+export async function updateStaff(id: string, payload: { name?: string; email?: string; permissions?: string[] }): Promise<StaffMember> {
   const res = await fetch(`${API_BASE_URL}/staff/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

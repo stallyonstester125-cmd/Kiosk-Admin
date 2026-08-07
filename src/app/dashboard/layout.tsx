@@ -21,9 +21,13 @@ export default function DashboardLayout({
       return;
     }
 
-    // Staff can only access the kitchen page
-    if (!loading && admin && admin.role === "staff" && pathname !== "/dashboard/kitchen") {
-      router.push("/dashboard/kitchen");
+    // Staff can only access pages they have permissions for
+    if (!loading && admin && admin.role === "staff") {
+      const allowedPaths = admin.permissions?.map(p => `/dashboard/${p}`) || ["/dashboard/kitchen"];
+      const isAllowed = allowedPaths.some(path => pathname.startsWith(path));
+      if (!pathname.startsWith("/dashboard") || !isAllowed) {
+        router.push("/dashboard/kitchen");
+      }
     }
   }, [admin, loading, router, pathname]);
 
@@ -40,13 +44,17 @@ export default function DashboardLayout({
   }
 
   // Prevent flash of forbidden page for staff
-  if (admin.role === "staff" && pathname !== "/dashboard/kitchen") {
-    return null;
+  if (admin.role === "staff") {
+    const allowedPaths = admin.permissions?.map(p => `/dashboard/${p}`) || ["/dashboard/kitchen"];
+    const isAllowed = allowedPaths.some(path => pathname.startsWith(path));
+    if (!pathname.startsWith("/dashboard") || !isAllowed) {
+      return null;
+    }
   }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <AdminSidebar role={admin.role} />
+      <AdminSidebar role={admin.role} permissions={admin.permissions} />
       <div className="flex-1 ml-64 flex flex-col min-h-screen pt-16">
         <AdminTopBar />
         <main className="flex-1 p-6 sm:p-8 min-h-[calc(100vh-4rem)]">
