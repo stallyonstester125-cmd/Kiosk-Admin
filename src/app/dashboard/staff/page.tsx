@@ -64,104 +64,109 @@ function CreateStaffModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl w-full max-w-md max-h-[calc(100vh-2rem)] flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 pb-0 flex-shrink-0">
           <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Create Staff Account</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700">
             <X className="w-5 h-5 text-zinc-500" />
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
-              placeholder="Jane Smith"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
-              placeholder="staff@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password</label>
-            <div className="relative">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
               <input
-                type={showPw ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
-                minLength={6}
-                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
-                placeholder="Min 6 characters"
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                placeholder="Jane Smith"
               />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-              >
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                placeholder="staff@example.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password</label>
+              <div className="relative">
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
+                  placeholder="Min 6 characters"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                >
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            
+            {/* Permissions Section */}
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Page Access</label>
+              <div className="space-y-2">
+                {availablePermissions.map((perm) => (
+                  <label key={perm.value} className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={selectedPermissions.includes(perm.value)}
+                      onChange={() => handlePermissionToggle(perm.value)}
+                      className="w-4 h-4 text-[var(--brand-orange)] border-zinc-300 rounded focus:ring-2 focus:ring-[var(--brand-orange)]"
+                    />
+                    <div className="flex items-center gap-2">
+                      <perm.icon className="w-5 h-5 text-zinc-500" strokeWidth={2} />
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 capitalize">{perm.label}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-zinc-500 mt-1">Select pages this staff member can access. Default: Kitchen only.</p>
             </div>
           </div>
-          
-          {/* Permissions Section */}
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Page Access</label>
-            <div className="space-y-2">
-              {availablePermissions.map((perm) => (
-                <label key={perm.value} className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={selectedPermissions.includes(perm.value)}
-                    onChange={() => handlePermissionToggle(perm.value)}
-                    className="w-4 h-4 text-[var(--brand-orange)] border-zinc-300 rounded focus:ring-2 focus:ring-[var(--brand-orange)]"
-                  />
-                  <div className="flex items-center gap-2">
-                    <perm.icon className="w-5 h-5 text-zinc-500" strokeWidth={2} />
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 capitalize">{perm.label}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
-            <p className="text-xs text-zinc-500 mt-1">Select pages this staff member can access. Default: Kitchen only.</p>
-          </div>
-          
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Create Staff
-            </button>
-          </div>
-        </form>
+        </div>
+
+        {/* Footer - Fixed */}
+        <div className="flex gap-3 p-6 pt-0 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Create Staff
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -221,102 +226,107 @@ function EditStaffModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl w-full max-w-md max-h-[calc(100vh-2rem)] flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 pb-0 flex-shrink-0">
           <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Edit Staff</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700">
             <X className="w-5 h-5 text-zinc-500" />
           </button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
-              placeholder="Jane Smith"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
-              placeholder="staff@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password (leave blank to keep current)</label>
-            <div className="relative">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Full Name</label>
               <input
-                type={showPw ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
-                placeholder="Leave blank to keep current password"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                placeholder="Jane Smith"
               />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-              >
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                placeholder="staff@example.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password (leave blank to keep current)</label>
+              <div className="relative">
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
+                  placeholder="Leave blank to keep current password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                >
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            
+            {/* Permissions Section */}
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Page Access</label>
+              <div className="space-y-2">
+                {availablePermissions.map((perm) => (
+                  <label key={perm.value} className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={selectedPermissions.includes(perm.value)}
+                      onChange={() => handlePermissionToggle(perm.value)}
+                      className="w-4 h-4 text-[var(--brand-orange)] border-zinc-300 rounded focus:ring-2 focus:ring-[var(--brand-orange)]"
+                    />
+                    <div className="flex items-center gap-2">
+                      <perm.icon className="w-5 h-5 text-zinc-500" strokeWidth={2} />
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 capitalize">{perm.label}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-zinc-500 mt-1">Select pages this staff member can access.</p>
             </div>
           </div>
-          
-          {/* Permissions Section */}
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Page Access</label>
-            <div className="space-y-2">
-              {availablePermissions.map((perm) => (
-                <label key={perm.value} className="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-700 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={selectedPermissions.includes(perm.value)}
-                    onChange={() => handlePermissionToggle(perm.value)}
-                    className="w-4 h-4 text-[var(--brand-orange)] border-zinc-300 rounded focus:ring-2 focus:ring-[var(--brand-orange)]"
-                  />
-                  <div className="flex items-center gap-2">
-                    <perm.icon className="w-5 h-5 text-zinc-500" strokeWidth={2} />
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 capitalize">{perm.label}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
-            <p className="text-xs text-zinc-500 mt-1">Select pages this staff member can access.</p>
-          </div>
-          
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Save Changes
-            </button>
-          </div>
-        </form>
+        </div>
+
+        {/* Footer - Fixed */}
+        <div className="flex gap-3 p-6 pt-0 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Save Changes
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -363,78 +373,83 @@ function ResetPasswordModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl w-full max-w-md max-h-[calc(100vh-2rem)] flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 pb-0 flex-shrink-0">
           <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Reset Password</h2>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700">
             <X className="w-5 h-5 text-zinc-500" />
           </button>
         </div>
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-          Resetting password for <span className="font-medium">{staff.name}</span> ({staff.email})
-        </p>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+            Resetting password for <span className="font-medium">{staff.name}</span> ({staff.email})
+          </p>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">New Password</label>
-            <div className="relative">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">New Password</label>
+              <div className="relative">
+                <input
+                  type={showPw ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
+                  placeholder="Min 6 characters"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                >
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Confirm Password</label>
               <input
                 type={showPw ? "text" : "password"}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] pr-10"
-                placeholder="Min 6 characters"
+                className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
+                placeholder="Confirm new password"
               />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-              >
-                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Confirm Password</label>
-            <input
-              type={showPw ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)]"
-              placeholder="Confirm new password"
-            />
-          </div>
-          
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Reset Password
-            </button>
-          </div>
-        </form>
+        </div>
+
+        {/* Footer - Fixed */}
+        <div className="flex gap-3 p-6 pt-0 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 py-2.5 rounded-lg bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-white text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Reset Password
+          </button>
+        </div>
       </div>
     </div>
   );
