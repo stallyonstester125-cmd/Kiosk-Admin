@@ -96,7 +96,7 @@ export default function AiHelpChat() {
   // Render the chat panel when open
   const chatPanel = (
     <section
-      className="fixed bottom-6 right-6 z-50 flex h-[min(520px,calc(100vh-48px))] w-[calc(100vw-48px)] max-w-[380px] max-w-[calc(100vw-48px)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
+      className="fixed bottom-6 right-6 z-50 flex h-[min(520px,calc(100vh-48px))] w-[calc(100vw-48px)] max-w-[380px] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
       aria-label="AI Help Assistant"
       style={{
         right: "24px",
@@ -154,7 +154,7 @@ export default function AiHelpChat() {
                 >
                   {question}
                 </button>
-              )}
+              ))}
             </div>
           </>
         )}
@@ -165,11 +165,11 @@ export default function AiHelpChat() {
               chatMessage.role === "user"
                 ? "ml-auto bg-[var(--brand-orange)] text-white"
                 : "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100"
-              }`}
+            }`}
           >
             {chatMessage.content}
           </div>
-        )}
+        ))}
         {isSending && (
           <div className="flex items-center gap-2 rounded-2xl bg-zinc-100 px-3 py-2 text-sm text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
             <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -205,19 +205,6 @@ export default function AiHelpChat() {
         </button>
       </form>
     </section>
-  )};
-
-  // Close button is only shown when chat is open
-  const closeButton = isOpen && (
-    <button
-      type="button"
-      onClick={() => setIsOpen(false)}
-      className="fixed right-6 bottom-[calc(100%-6rem)] z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-lg backdrop-blur-sm transition hover:bg-zinc-100 dark:bg-white/90 dark:text-zinc-700 focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
-      aria-label="Close AI Help"
-      title="Close AI Help"
-    >
-      <X className="h-6 w-6" />
-    </button>
   );
 
   return (
