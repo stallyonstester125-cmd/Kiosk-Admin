@@ -132,6 +132,16 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
     return hasPermission(item);
   });
 
+  const visibleSubItems = (item: NavItem) => {
+    if (!item.subItems) return [];
+    return item.subItems.filter(sub => hasSubPermission(sub));
+  };
+
+  const hasVisibleSubItems = (item: NavItem): boolean => {
+    if (!item.subItems) return false;
+    return item.subItems.some(sub => hasSubPermission(sub));
+  };
+
   const isActive = (href?: string) =>
     href && (pathname === href || pathname.startsWith(href + "/"));
 

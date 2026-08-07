@@ -24,7 +24,10 @@ export default function DashboardLayout({
     // Staff can only access pages they have permissions for
     if (!loading && admin && admin.role === "staff") {
       const allowedPaths = admin.permissions?.map(p => `/dashboard/${p}`) || ["/dashboard/kitchen"];
-      const isAllowed = allowedPaths.some(path => pathname.startsWith(path));
+      // Exact path matching with support for nested routes
+      const isAllowed = allowedPaths.some(path => 
+        pathname === path || pathname.startsWith(path + "/")
+      );
       if (!pathname.startsWith("/dashboard") || !isAllowed) {
         router.push("/dashboard/kitchen");
       }
@@ -46,7 +49,9 @@ export default function DashboardLayout({
   // Prevent flash of forbidden page for staff
   if (admin.role === "staff") {
     const allowedPaths = admin.permissions?.map(p => `/dashboard/${p}`) || ["/dashboard/kitchen"];
-    const isAllowed = allowedPaths.some(path => pathname.startsWith(path));
+    const isAllowed = allowedPaths.some(path => 
+      pathname === path || pathname.startsWith(path + "/")
+    );
     if (!pathname.startsWith("/dashboard") || !isAllowed) {
       return null;
     }
