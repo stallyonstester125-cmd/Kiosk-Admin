@@ -1,12 +1,20 @@
 import { API_BASE_URL } from './api-config';
 import type { Permission } from './permissions';
 
+// ─── Shared Types ─────────────────────────────────────────────────────────────
+
+export interface ImpersonationInfo {
+  active: boolean;
+  originalRole: 'admin' | null;
+}
+
 export interface AdminUser {
   _id: string;
   name: string;
   email: string;
   role: 'admin' | 'staff';
   permissions?: Permission[];
+  impersonation?: ImpersonationInfo;
 }
 
 export interface StaffMember {
@@ -79,7 +87,7 @@ export interface Product {
   updatedAt: string;
 }
 
-// ─── Auth ───────────────────────────────────────────────────────────────────
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export async function adminLogin(email: string, password: string): Promise<AdminUser> {
   const res = await fetch(`${API_BASE_URL}/admin/login`, {
@@ -95,7 +103,7 @@ export async function adminLogin(email: string, password: string): Promise<Admin
   const adminData = json.data.admin as AdminUser;
   return {
     ...adminData,
-    permissions: adminData.permissions || []
+    permissions: adminData.permissions || [],
   };
 }
 
@@ -108,7 +116,8 @@ export async function adminMe(): Promise<AdminUser | null> {
   const adminData = json.data as AdminUser;
   return {
     ...adminData,
-    permissions: adminData.permissions || []
+    permissions: adminData.permissions || [],
+    impersonation: adminData.impersonation ?? { active: false, originalRole: null },
   };
 }
 
@@ -119,7 +128,41 @@ export async function adminLogout() {
   });
 }
 
-// ─── Orders ─────────────────────────────────────────────────────────────────
+export async function impersonateStaff(staffId: string): Promise<AdminUser> {
+  const res = await fetch(`${API_BASE_URL}/admin/staff/${staffId}/impersonate`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Failed to start impersonation');
+  }
+  const data = json.data as AdminUser;
+  return {
+    ...data,
+    permissions: data.permissions || [],
+    impersonation: data.impersonation ?? { active: true, originalRole: 'admin' },
+  };
+}
+
+export async function exitImpersonation(): Promise<AdminUser> {
+  const res = await fetch(`${API_BASE_URL}/admin/impersonation/exit`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Failed to exit impersonation');
+  }
+  const data = json.data as AdminUser;
+  return {
+    ...data,
+    permissions: data.permissions || [],
+    impersonation: data.impersonation ?? { active: false, originalRole: null },
+  };
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
 
 export async function fetchOrders(status?: string): Promise<Order[]> {
   const url = status
@@ -153,7 +196,7 @@ export async function updateOrderStatus(id: string, status: Order['status']): Pr
   return json.data as Order;
 }
 
-// ─── Products ────────────────────────────────────────────────────────────────
+// ─── Products ─────────────────────────────────────────────────────────────────
 
 export async function fetchProducts(): Promise<Product[]> {
   const res = await fetch(`${API_BASE_URL}/products`, { credentials: 'include', cache: 'no-store' });
@@ -162,7 +205,7 @@ export async function fetchProducts(): Promise<Product[]> {
   return json.data as Product[];
 }
 
-// ─── Categories ──────────────────────────────────────────────────────────────
+// ─── Categories ───────────────────────────────────────────────────────────────
 
 export async function fetchCategories(): Promise<Category[]> {
   const res = await fetch(`${API_BASE_URL}/categories`, { credentials: 'include', cache: 'no-store' });
@@ -241,7 +284,7 @@ export async function deleteProduct(id: string): Promise<void> {
   }
 }
 
-// ─── Staff ───────────────────────────────────────────────────────────────────
+// ─── Staff ────────────────────────────────────────────────────────────────────
 
 export async function fetchStaff(): Promise<StaffMember[]> {
   const res = await fetch(`${API_BASE_URL}/staff`, { credentials: 'include', cache: 'no-store' });
@@ -297,7 +340,7 @@ export async function resetStaffPassword(id: string, password: string): Promise<
   if (!res.ok || !json.success) throw new Error(json.message || 'Failed to reset password');
 }
 
-// ─── Coupons ─────────────────────────────────────────────────────────────────
+// ─── Coupons ──────────────────────────────────────────────────────────────────
 
 export interface Coupon {
   _id: string;

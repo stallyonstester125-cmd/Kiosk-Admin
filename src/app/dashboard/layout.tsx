@@ -17,6 +17,8 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
 
+  const isImpersonating = admin?.impersonation?.active === true;
+
   useEffect(() => {
     if (!loading && !admin) {
       router.push("/login");
@@ -50,10 +52,14 @@ export default function DashboardLayout({
     if (!hasRoutePermission(pathname, (admin.permissions || []).filter((permission) => permission !== "staff"))) return null;
   }
 
+  // When the impersonation banner is shown (36px), the topbar shifts down.
+  // Add extra padding-top so content doesn't hide behind both the banner and the topbar.
+  const topOffset = isImpersonating ? "pt-[100px]" : "pt-16";
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <AdminSidebar role={admin.role} permissions={admin.permissions} />
-      <div className="flex-1 ml-64 flex flex-col min-h-screen pt-16">
+      <div className={`flex-1 ml-64 flex flex-col min-h-screen ${topOffset}`}>
         <AdminTopBar />
         <main className="flex-1 p-6 sm:p-8 min-h-[calc(100vh-4rem)]">
           {children}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Loader2, Plus, X, Eye, EyeOff, UserCheck, UserX, KeyRound, UtensilsCrossed, Pizza, ClipboardList, BarChart3, Ticket, Users, Edit } from "lucide-react";
+import { Loader2, Plus, X, Eye, EyeOff, UserCheck, UserX, KeyRound, UtensilsCrossed, Pizza, ClipboardList, BarChart3, Ticket, Users, Edit, UserCog } from "lucide-react";
 import {
   fetchStaff,
   createStaff,
@@ -11,6 +11,7 @@ import {
   StaffMember,
 } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
+import { useAuth } from "@/context/AdminAuthContext";
 import type { Permission } from "@/lib/permissions";
 
 const availablePermissions: { value: Permission; label: string; icon: typeof UtensilsCrossed }[] = [
@@ -23,7 +24,7 @@ const availablePermissions: { value: Permission; label: string; icon: typeof Ute
   { value: 'staff', label: 'Staff Management', icon: Users },
 ];
 
-// ─── Create Modal ─────────────────────────────────────────────────────────────
+// ─── Create Modal ──────────────────────────────────────────────────────────────
 function CreateStaffModal({
   onClose,
   onCreated,
@@ -40,7 +41,7 @@ function CreateStaffModal({
   const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>(['kitchen']);
 
   const handlePermissionToggle = (permission: Permission) => {
-    setSelectedPermissions(prev => 
+    setSelectedPermissions(prev =>
       selectedPermissions.includes(permission)
         ? prev.filter(p => p !== permission)
         : [...prev, permission]
@@ -124,7 +125,7 @@ function CreateStaffModal({
                 </button>
               </div>
             </div>
-            
+
             {/* Permissions Section */}
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Page Access</label>
@@ -172,7 +173,7 @@ function CreateStaffModal({
   );
 }
 
-// ─── Edit Modal ─────────────────────────────────────────────────────────────────
+// ─── Edit Modal ────────────────────────────────────────────────────────────────
 function EditStaffModal({
   staff,
   onClose,
@@ -191,7 +192,7 @@ function EditStaffModal({
   const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>(staff.permissions ?? []);
 
   const handlePermissionToggle = (permission: Permission) => {
-    setSelectedPermissions(prev => 
+    setSelectedPermissions(prev =>
       selectedPermissions.includes(permission)
         ? prev.filter(p => p !== permission)
         : [...prev, permission]
@@ -273,7 +274,7 @@ function EditStaffModal({
                 </button>
               </div>
             </div>
-            
+
             {/* Permissions Section */}
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Page Access</label>
@@ -321,7 +322,7 @@ function EditStaffModal({
   );
 }
 
-// ─── Reset Password Modal ─────────────────────────────────────────────────────
+// ─── Reset Password Modal ──────────────────────────────────────────────────────
 function ResetPasswordModal({
   staff,
   onClose,
@@ -338,17 +339,17 @@ function ResetPasswordModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (newPassword.length < 6) {
       setError("Password must be at least 6 characters");
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    
+
     setLoading(true);
     try {
       await resetStaffPassword(staff._id, newPassword);
@@ -405,7 +406,7 @@ function ResetPasswordModal({
                 </button>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Confirm Password</label>
               <input
@@ -444,7 +445,7 @@ function ResetPasswordModal({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// ─── Page ──────────────────────────────────────────────────────────────────────
 export default function StaffPage() {
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -454,9 +455,14 @@ export default function StaffPage() {
   const [editTarget, setEditTarget] = useState<StaffMember | null>(null);
   const [resetTarget, setResetTarget] = useState<StaffMember | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
 
   const { filteredData } = useSearch();
   const filteredStaff = useMemo(() => filteredData(staff), [staff]);
+
+  // Impersonation actions from auth context
+  const { admin, impersonate } = useAuth();
+  const isAdmin = admin?.role === "admin";
 
   const load = async () => {
     try {
@@ -496,6 +502,17 @@ export default function StaffPage() {
   };
 
   const handleCreated = (s: StaffMember) => setStaff((prev) => [s, ...prev]);
+
+  const handleImpersonate = async (member: StaffMember) => {
+    setImpersonatingId(member._id);
+    try {
+      // impersonate() in the auth context will update admin state and redirect
+      await impersonate(member._id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to impersonate staff member");
+      setImpersonatingId(null);
+    }
+  };
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
@@ -584,6 +601,7 @@ export default function StaffPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
+                          {/* Edit */}
                           <button
                             onClick={() => handleEdit(member)}
                             className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
@@ -591,6 +609,8 @@ export default function StaffPage() {
                           >
                             <Edit className="w-4 h-4" />
                           </button>
+
+                          {/* Activate / Deactivate */}
                           <button
                             onClick={() => handleToggleStatus(member)}
                             disabled={togglingId === member._id}
@@ -609,6 +629,8 @@ export default function StaffPage() {
                               <UserCheck className="w-4 h-4" />
                             )}
                           </button>
+
+                          {/* Reset Password */}
                           <button
                             onClick={() => setResetTarget(member)}
                             title="Reset Password"
@@ -616,6 +638,30 @@ export default function StaffPage() {
                           >
                             <KeyRound className="w-4 h-4" />
                           </button>
+
+                          {/* Impersonate — admin only, disabled for inactive accounts */}
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleImpersonate(member)}
+                              disabled={!active || impersonatingId === member._id}
+                              title={
+                                !active
+                                  ? "Cannot impersonate an inactive staff account"
+                                  : "Impersonate Staff"
+                              }
+                              className={`p-1.5 rounded-lg transition-colors ${
+                                active
+                                  ? "text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                  : "text-zinc-300 dark:text-zinc-600 cursor-not-allowed"
+                              } disabled:opacity-50`}
+                            >
+                              {impersonatingId === member._id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <UserCog className="w-4 h-4" />
+                              )}
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
