@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AdminAuthContext";
 import AdminTopBar from "@/components/AdminTopBar";
 import AdminSidebar from "@/components/AdminSidebar";
 import { firstPermittedPath, hasRoutePermission } from "@/lib/permissions";
+import AiHelpChat from "@/components/AiHelpChat";
 
 export default function DashboardLayout({
   children,
@@ -57,6 +58,7 @@ export default function DashboardLayout({
         <main className="flex-1 p-6 sm:p-8 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
+        <AiHelpChat />
       </div>
     </div>
   );

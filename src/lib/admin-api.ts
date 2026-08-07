@@ -458,6 +458,29 @@ export async function downloadTransactionsReport(params: Record<string, string>)
   document.body.removeChild(link);
 }
 
+export interface AiSupportMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export async function getAiSupportReply(payload: {
+  message: string;
+  conversation: AiSupportMessage[];
+  currentPath: string;
+}): Promise<string> {
+  const res = await fetch(`${API_BASE_URL}/admin/ai-support/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.success || typeof json?.data?.message !== 'string') {
+    throw new Error('AI Help is temporarily unavailable. Please try again in a moment.');
+  }
+  return json.data.message;
+}
+
 export async function fetchSalesReportOrders(): Promise<Order[]> {
   const res = await fetch(`${API_BASE_URL}/orders/sales-report`, {
     credentials: 'include',
