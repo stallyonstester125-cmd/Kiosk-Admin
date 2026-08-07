@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { ArrowUpDown, Loader2, ChevronDown, Percent, Download, FileSpreadsheet, FileText, Sheet } from "lucide-react";
-import { fetchOrders, Order, downloadSalesReport } from "@/lib/admin-api";
+import { fetchSalesReportOrders, Order, downloadSalesReport } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
 const PAGE_SIZE = 15;
@@ -47,7 +47,7 @@ export default function SalesReportPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await fetchOrders();
+      const data = await fetchSalesReportOrders();
       setOrders(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load sales data");

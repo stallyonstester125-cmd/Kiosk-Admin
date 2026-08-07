@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { Layers, ClipboardList, Ticket, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
-import { useAuth } from "@/context/AdminAuthContext";
+import type { Permission } from "@/lib/permissions";
 
 type SubNavItem = {
   label: string;
   href: string;
-  permission?: string; // Permission required for this sub-item
+  permission?: Permission;
 };
 
 type NavItem = {
@@ -22,7 +22,7 @@ type NavItem = {
   icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   subItems?: SubNavItem[];
   adminOnly?: boolean;
-  permission?: string; // Permission required to see this item
+  permission?: Permission;
 };
 
 const navItems: NavItem[] = [
@@ -39,8 +39,6 @@ const navItems: NavItem[] = [
     label: "Menu Layout",
     iconType: "lucide",
     icon: Layers,
-    adminOnly: true,
-    permission: "products",
     subItems: [
       { label: "Product", href: "/dashboard/products", permission: "products" },
       { label: "Category", href: "/dashboard/categories", permission: "categories" },
@@ -61,7 +59,7 @@ const navItems: NavItem[] = [
     href: "/dashboard/sales-report",
     iconType: "lucide",
     icon: ClipboardList,
-    adminOnly: true,
+    adminOnly: false,
     permission: "sales-report",
   },
   {
@@ -70,7 +68,7 @@ const navItems: NavItem[] = [
     href: "/dashboard/coupons",
     iconType: "lucide",
     icon: Ticket,
-    adminOnly: true,
+    adminOnly: false,
     permission: "coupons",
   },
   {
@@ -79,7 +77,7 @@ const navItems: NavItem[] = [
     href: "/dashboard/transactions",
     iconType: "lucide",
     icon: BarChart3,
-    adminOnly: true,
+    adminOnly: false,
     permission: "transactions",
   },
   {
@@ -95,14 +93,12 @@ const navItems: NavItem[] = [
 
 interface AdminSidebarProps {
   role?: string;
-  permissions?: string[];
+  permissions?: Permission[];
 }
 
 export default function AdminSidebar({ role = "admin", permissions = [] }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
-  const { admin } = useAuth();
-
   const isAdmin = role === "admin";
   
   // Check if user has permission to see a nav item
@@ -125,13 +121,6 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
     return permissions?.includes(sub.permission) ?? false;
   };
 
-  const visibleItems = navItems.filter((item) => {
-    // Check adminOnly first
-    if (item.adminOnly && !isAdmin) return false;
-    // Check permission
-    return hasPermission(item);
-  });
-
   const visibleSubItems = (item: NavItem) => {
     if (!item.subItems) return [];
     return item.subItems.filter(sub => hasSubPermission(sub));
@@ -141,6 +130,12 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
     if (!item.subItems) return false;
     return item.subItems.some(sub => hasSubPermission(sub));
   };
+
+  const visibleItems = navItems.filter((item) => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (item.subItems) return hasVisibleSubItems(item);
+    return hasPermission(item);
+  });
 
   const isActive = (href?: string) =>
     href && (pathname === href || pathname.startsWith(href + "/"));

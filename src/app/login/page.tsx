@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Mail, Lock, Eye, EyeOff, Check } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
 import { useRouter } from "next/navigation";
+import { firstPermittedPath } from "@/lib/permissions";
 
 const poppinsFont = { fontFamily: "var(--font-inter)" };
 
@@ -26,7 +27,7 @@ export default function LoginPage() {
     try {
       const user = await login(email, password);
       if (user && user.role === "staff") {
-        router.push("/dashboard/kitchen");
+        router.push(firstPermittedPath((user.permissions || []).filter((permission) => permission !== "staff")));
       } else {
         router.push("/dashboard");
       }

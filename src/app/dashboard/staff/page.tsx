@@ -11,6 +11,17 @@ import {
   StaffMember,
 } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
+import type { Permission } from "@/lib/permissions";
+
+const availablePermissions: { value: Permission; label: string; icon: typeof UtensilsCrossed }[] = [
+  { value: 'kitchen', label: 'Kitchen', icon: UtensilsCrossed },
+  { value: 'products', label: 'Products', icon: Pizza },
+  { value: 'categories', label: 'Categories', icon: Pizza },
+  { value: 'transactions', label: 'Transaction & Analytics', icon: BarChart3 },
+  { value: 'sales-report', label: 'Sales Report', icon: ClipboardList },
+  { value: 'coupons', label: 'Coupons', icon: Ticket },
+  { value: 'staff', label: 'Staff Management', icon: Users },
+];
 
 // ─── Create Modal ─────────────────────────────────────────────────────────────
 function CreateStaffModal({
@@ -26,20 +37,9 @@ function CreateStaffModal({
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['kitchen']);
+  const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>(['kitchen']);
 
-  // Available permissions based on actual admin pages
-  const availablePermissions = useMemo(() => [
-    { value: 'kitchen', label: 'Kitchen', icon: UtensilsCrossed },
-    { value: 'products', label: 'Products', icon: Pizza },
-    { value: 'categories', label: 'Categories', icon: Pizza },
-    { value: 'transactions', label: 'Transaction & Analytics', icon: BarChart3 },
-    { value: 'sales-report', label: 'Sales Report', icon: ClipboardList },
-    { value: 'coupons', label: 'Coupons', icon: Ticket },
-    { value: 'staff', label: 'Staff Management', icon: Users },
-  ], []);
-
-  const handlePermissionToggle = (permission: string) => {
+  const handlePermissionToggle = (permission: Permission) => {
     setSelectedPermissions(prev => 
       selectedPermissions.includes(permission)
         ? prev.filter(p => p !== permission)
@@ -188,20 +188,9 @@ function EditStaffModal({
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(staff.permissions || ['kitchen']);
+  const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>(staff.permissions ?? []);
 
-  // Available permissions based on actual admin pages
-  const availablePermissions = useMemo(() => [
-    { value: 'kitchen', label: 'Kitchen', icon: UtensilsCrossed },
-    { value: 'products', label: 'Products', icon: Pizza },
-    { value: 'categories', label: 'Categories', icon: Pizza },
-    { value: 'transactions', label: 'Transaction & Analytics', icon: BarChart3 },
-    { value: 'sales-report', label: 'Sales Report', icon: ClipboardList },
-    { value: 'coupons', label: 'Coupons', icon: Ticket },
-    { value: 'staff', label: 'Staff Management', icon: Users },
-  ], []);
-
-  const handlePermissionToggle = (permission: string) => {
+  const handlePermissionToggle = (permission: Permission) => {
     setSelectedPermissions(prev => 
       selectedPermissions.includes(permission)
         ? prev.filter(p => p !== permission)

@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AdminAuthContext";
 import AdminTopBar from "@/components/AdminTopBar";
 import AdminSidebar from "@/components/AdminSidebar";
+import { firstPermittedPath, hasRoutePermission } from "@/lib/permissions";
 
 export default function DashboardLayout({
   children,
@@ -23,13 +24,10 @@ export default function DashboardLayout({
 
     // Staff can only access pages they have permissions for
     if (!loading && admin && admin.role === "staff") {
-      const allowedPaths = admin.permissions?.map(p => `/dashboard/${p}`) || ["/dashboard/kitchen"];
-      // Exact path matching with support for nested routes
-      const isAllowed = allowedPaths.some(path => 
-        pathname === path || pathname.startsWith(path + "/")
-      );
-      if (!pathname.startsWith("/dashboard") || !isAllowed) {
-        router.push("/dashboard/kitchen");
+      // Staff management is intentionally admin-only on the API as well.
+      const permissions = (admin.permissions || []).filter((permission) => permission !== "staff");
+      if (!hasRoutePermission(pathname, permissions)) {
+        router.replace(firstPermittedPath(permissions));
       }
     }
   }, [admin, loading, router, pathname]);
@@ -48,13 +46,7 @@ export default function DashboardLayout({
 
   // Prevent flash of forbidden page for staff
   if (admin.role === "staff") {
-    const allowedPaths = admin.permissions?.map(p => `/dashboard/${p}`) || ["/dashboard/kitchen"];
-    const isAllowed = allowedPaths.some(path => 
-      pathname === path || pathname.startsWith(path + "/")
-    );
-    if (!pathname.startsWith("/dashboard") || !isAllowed) {
-      return null;
-    }
+    if (!hasRoutePermission(pathname, (admin.permissions || []).filter((permission) => permission !== "staff"))) return null;
   }
 
   return (

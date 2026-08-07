@@ -1,11 +1,12 @@
 import { API_BASE_URL } from './api-config';
+import type { Permission } from './permissions';
 
 export interface AdminUser {
   _id: string;
   name: string;
   email: string;
   role: 'admin' | 'staff';
-  permissions?: string[]; // Added this line for staff permissions
+  permissions?: Permission[];
 }
 
 export interface StaffMember {
@@ -16,7 +17,7 @@ export interface StaffMember {
   isActive?: boolean;
   lastLoginAt?: string | null;
   createdAt: string;
-  permissions?: string[];  // Array of permissions like 'kitchen', 'products', etc.
+  permissions?: Permission[];
 }
 
 export interface OrderItem {
@@ -249,7 +250,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
   return json.data as StaffMember[];
 }
 
-export async function createStaff(payload: { name: string; email: string; password: string; permissions?: string[] }): Promise<StaffMember> {
+export async function createStaff(payload: { name: string; email: string; password: string; permissions?: Permission[] }): Promise<StaffMember> {
   const res = await fetch(`${API_BASE_URL}/staff`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -261,7 +262,7 @@ export async function createStaff(payload: { name: string; email: string; passwo
   return json.data as StaffMember;
 }
 
-export async function updateStaff(id: string, payload: { name?: string; email?: string; permissions?: string[] }): Promise<StaffMember> {
+export async function updateStaff(id: string, payload: { name?: string; email?: string; permissions?: Permission[] }): Promise<StaffMember> {
   const res = await fetch(`${API_BASE_URL}/staff/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -455,4 +456,14 @@ export async function downloadTransactionsReport(params: Record<string, string>)
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+export async function fetchSalesReportOrders(): Promise<Order[]> {
+  const res = await fetch(`${API_BASE_URL}/orders/sales-report`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to fetch sales data');
+  return json.data as Order[];
 }
