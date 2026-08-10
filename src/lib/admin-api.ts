@@ -82,10 +82,13 @@ export interface Product {
   };
   image: string;
   isActive?: boolean;
-  customizations?: unknown[];
+  customizations?: CustomizationGroup[];
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CustomizationOption { id: string; name: string; priceAdd: number; isActive: boolean; displayOrder: number; }
+export interface CustomizationGroup { id: string; title: string; type: 'single' | 'multiple'; required: boolean; minSelections: number; maxSelections: number | null; isActive: boolean; displayOrder: number; options: CustomizationOption[]; }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 

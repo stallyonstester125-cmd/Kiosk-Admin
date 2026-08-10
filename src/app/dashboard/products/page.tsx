@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { Edit, Trash2, Plus, X, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { useAuth } from "@/context/AdminAuthContext";
-import { fetchProducts, fetchCategories, createProduct, updateProduct, deleteProduct, Product, Category } from "@/lib/admin-api";
+import { fetchProducts, fetchCategories, createProduct, updateProduct, deleteProduct, Product, Category, CustomizationGroup } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
 interface FormData {
@@ -16,6 +16,7 @@ interface FormData {
   image: File | null;
   imagePreview: string | null;
   isActive: boolean;
+  customizations: CustomizationGroup[];
 }
 
 interface FormErrors {
@@ -50,6 +51,7 @@ export default function ProductsPage() {
     image: null,
     imagePreview: null,
     isActive: true,
+    customizations: [],
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -116,6 +118,10 @@ export default function ProductsPage() {
     if (!editingProduct && !formData.image) {
       newErrors.image = "Product image is required";
     }
+    formData.customizations.forEach((group, index) => {
+      const min = group.required ? Math.max(1, group.minSelections) : group.minSelections;
+      if (!group.title.trim() || !group.options.length || group.options.some((option) => !option.name.trim() || !Number.isFinite(option.priceAdd) || option.priceAdd < 0) || (group.maxSelections !== null && group.maxSelections < min)) newErrors.description = `Customization group ${index + 1} has invalid values`;
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -153,6 +159,12 @@ export default function ProductsPage() {
     }
   };
 
+  const updateCustomizations = (customizations: CustomizationGroup[]) => setFormData((prev) => ({ ...prev, customizations }));
+  const addGroup = () => updateCustomizations([...formData.customizations, { id: crypto.randomUUID(), title: "", type: "single", required: false, minSelections: 0, maxSelections: 1, isActive: true, displayOrder: formData.customizations.length, options: [] }]);
+  const updateGroup = (index: number, patch: Partial<CustomizationGroup>) => updateCustomizations(formData.customizations.map((group, groupIndex) => groupIndex === index ? { ...group, ...patch } : group));
+  const addOption = (groupIndex: number) => updateGroup(groupIndex, { options: [...formData.customizations[groupIndex].options, { id: crypto.randomUUID(), name: "", priceAdd: 0, isActive: true, displayOrder: formData.customizations[groupIndex].options.length }] });
+  const updateOption = (groupIndex: number, optionIndex: number, patch: Partial<CustomizationGroup["options"][number]>) => updateGroup(groupIndex, { options: formData.customizations[groupIndex].options.map((option, index) => index === optionIndex ? { ...option, ...patch } : option) });
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -162,6 +174,7 @@ export default function ProductsPage() {
       image: null,
       imagePreview: null,
       isActive: true,
+      customizations: [],
     });
     setErrors({});
     setEditingProduct(null);
@@ -182,6 +195,14 @@ export default function ProductsPage() {
       image: null,
       imagePreview: product.image,
       isActive: product.isActive ?? true,
+      customizations: (product.customizations || []).map((group, groupIndex) => ({
+        ...group,
+        minSelections: group.minSelections ?? 0,
+        maxSelections: group.maxSelections ?? (group.type === "single" ? 1 : null),
+        isActive: group.isActive ?? true,
+        displayOrder: group.displayOrder ?? groupIndex,
+        options: group.options.map((option, optionIndex) => ({ ...option, isActive: option.isActive ?? true, displayOrder: option.displayOrder ?? optionIndex })),
+      })),
     });
     setErrors({});
     setIsModalOpen(true);
@@ -202,6 +223,7 @@ export default function ProductsPage() {
       formDataToSend.append("category", formData.categoryId);
       formDataToSend.append("description", formData.description);
       formDataToSend.append("isActive", editingProduct ? (formData.isActive ? "true" : "false") : "true");
+      formDataToSend.append("customizations", JSON.stringify(formData.customizations));
       if (formData.image) {
         formDataToSend.append("image", formData.image);
       }
@@ -544,6 +566,10 @@ export default function ProductsPage() {
                 </div>
               </div>
 
+              <section className="mt-6 border-t border-zinc-200 pt-5 dark:border-zinc-700">
+                <div className="mb-4 flex items-center justify-between"><div><h3 className="font-semibold text-zinc-900 dark:text-white">Customizations</h3><p className="text-sm text-zinc-500">Optional choices shown with this product in the kiosk.</p></div><button type="button" onClick={addGroup} className="rounded-lg border border-[var(--brand-orange)] px-3 py-2 text-sm font-semibold text-[var(--brand-orange)]">+ Add Group</button></div>
+                <div className="space-y-4">{formData.customizations.map((group, groupIndex) => <div key={group.id} className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700"><div className="mb-3 flex justify-end"><button type="button" onClick={() => updateCustomizations(formData.customizations.filter((_, index) => index !== groupIndex))} className="text-sm text-red-600">Delete group</button></div><div className="grid gap-3 sm:grid-cols-2"><input value={group.title} onChange={(event) => updateGroup(groupIndex, { title: event.target.value })} placeholder="Group name, e.g. Choose Your Cheese" className="rounded-lg border border-zinc-300 px-3 py-2 dark:bg-zinc-700"/><select value={group.type} onChange={(event) => updateGroup(groupIndex, { type: event.target.value as CustomizationGroup['type'], maxSelections: event.target.value === 'single' ? 1 : group.maxSelections })} className="rounded-lg border border-zinc-300 px-3 py-2 dark:bg-zinc-700"><option value="single">Single choice</option><option value="multiple">Multiple choice</option></select><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={group.required} onChange={(event) => updateGroup(groupIndex, { required: event.target.checked, minSelections: event.target.checked ? Math.max(1, group.minSelections) : group.minSelections })}/> Required</label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={group.isActive} onChange={(event) => updateGroup(groupIndex, { isActive: event.target.checked })}/> Active</label>{group.type === 'multiple' && <><label className="text-sm">Min <input type="number" min="0" value={group.minSelections} onChange={(event) => updateGroup(groupIndex, { minSelections: Number(event.target.value) })} className="ml-2 w-16 rounded border p-1"/></label><label className="text-sm">Max <input type="number" min="0" value={group.maxSelections ?? ''} onChange={(event) => updateGroup(groupIndex, { maxSelections: event.target.value === '' ? null : Number(event.target.value) })} className="ml-2 w-16 rounded border p-1"/></label></>}</div><div className="mt-4 space-y-2">{group.options.map((option, optionIndex) => <div key={option.id} className="grid grid-cols-[1fr_90px_auto_auto] gap-2"><input value={option.name} onChange={(event) => updateOption(groupIndex, optionIndex, { name: event.target.value })} placeholder="Option name" className="rounded border border-zinc-300 px-2 py-2 dark:bg-zinc-700"/><input type="number" min="0" step="0.01" value={option.priceAdd} onChange={(event) => updateOption(groupIndex, optionIndex, { priceAdd: Number(event.target.value) })} className="rounded border border-zinc-300 px-2 py-2 dark:bg-zinc-700"/><label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={option.isActive} onChange={(event) => updateOption(groupIndex, optionIndex, { isActive: event.target.checked })}/>Active</label><button type="button" onClick={() => updateGroup(groupIndex, { options: group.options.filter((_, index) => index !== optionIndex) })} className="text-sm text-red-600">Delete</button></div>)}</div><button type="button" onClick={() => addOption(groupIndex)} className="mt-3 text-sm font-semibold text-[var(--brand-orange)]">+ Add Option</button></div>)}</div>
+              </section>
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-700">
                 <button
                   type="button"

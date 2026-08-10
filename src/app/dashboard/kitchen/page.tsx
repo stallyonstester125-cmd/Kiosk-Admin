@@ -119,8 +119,8 @@ function OrderCard({
       {/* Items */}
       <div className="space-y-1.5 border-t border-zinc-200 dark:border-zinc-700 pt-3">
         {order.items.map((item, i) => (
-          <div key={i} className="flex justify-between items-center text-sm">
-            <span className="text-zinc-700 dark:text-zinc-200 font-medium">{item.name}</span>
+          <div key={i} className="flex justify-between items-start text-sm">
+            <span className="text-zinc-700 dark:text-zinc-200 font-medium">{item.name}{item.customizations?.flatMap((group) => group.options).length ? <span className="mt-1 block text-xs font-normal text-zinc-500">{item.customizations.flatMap((group) => group.options.map((option) => option.name)).join(', ')}</span> : null}</span>
             <span className="text-zinc-500 dark:text-zinc-400 font-semibold">×{item.quantity}</span>
           </div>
         ))}
