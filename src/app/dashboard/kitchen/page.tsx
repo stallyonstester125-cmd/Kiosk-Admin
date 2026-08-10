@@ -95,7 +95,7 @@ function OrderCard({
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-            {order.orderType === "eat-in" ? "Eat In" : "Take Away"}
+            {order.orderType === "eat-in" ? "Dine In" : order.orderType === "take-away" ? "Take Away" : "—"}
           </p>
           <h3 className="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">
             #{order.orderNumber}

@@ -205,6 +205,7 @@ export default function TransactionsPage() {
                     <th className="px-6 py-4">Customer Name</th>
                     <th className="px-6 py-4">Order Number</th>
                     <th className="px-6 py-4">Date</th>
+                    <th className="px-6 py-4">Type</th>
                     <th className="px-6 py-4">Coupon</th>
                     <th className="px-6 py-4">Discount</th>
                     <th className="px-6 py-4">Final Total</th>
@@ -226,6 +227,9 @@ export default function TransactionsPage() {
                       </td>
                       <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">
                         {fullDate(order.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">
+                        {order.orderType === "eat-in" ? "Dine In" : order.orderType === "take-away" ? "Take Away" : "—"}
                       </td>
                       <td className="px-6 py-4 font-bold text-[var(--brand-orange)]">
                         {order.coupon_code || "—"}
@@ -251,7 +255,7 @@ export default function TransactionsPage() {
                   ))}
                   {filteredOrders.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-6 py-10 text-center text-zinc-500">
+                      <td colSpan={8} className="px-6 py-10 text-center text-zinc-500">
                         No matching transactions found
                       </td>
                     </tr>
@@ -319,7 +323,7 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <span className="font-semibold text-zinc-500 dark:text-zinc-400 block text-xs uppercase tracking-wider">Type</span>
-                  <span className="capitalize">{selectedOrder.orderType}</span>
+                  <span>{selectedOrder.orderType === "eat-in" ? "Dine In" : selectedOrder.orderType === "take-away" ? "Take Away" : "—"}</span>
                 </div>
                 <div>
                   <span className="font-semibold text-zinc-500 dark:text-zinc-400 block text-xs uppercase tracking-wider">Status</span>

@@ -66,6 +66,7 @@ export default function SalesReportPage() {
       id: order._id,
       customer: order.customerName,
       orderId: order.orderNumber,
+      orderType: order.orderType,
       subtotal: order.subtotal_before_discount ?? order.subtotal,
       couponCode: order.coupon_code || "—",
       discount: order.discount_amount ?? 0,
@@ -226,6 +227,7 @@ export default function SalesReportPage() {
                 <tr>
                   <th className="px-6 py-4">Customer</th>
                   <th className="px-6 py-4">Invoice (Order ID)</th>
+                  <th className="px-6 py-4">Type</th>
                   <th className="px-6 py-4">Subtotal</th>
                   <th className="px-6 py-4">Coupon</th>
                   <th className="px-6 py-4">Discount</th>
@@ -270,6 +272,9 @@ export default function SalesReportPage() {
                       {row.orderId}
                     </td>
                     <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">
+                      {row.orderType === "eat-in" ? "Dine In" : row.orderType === "take-away" ? "Take Away" : "—"}
+                    </td>
+                    <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">
                       {money(row.subtotal)}
                     </td>
                     <td className="px-6 py-4 font-bold text-[var(--brand-orange)]">
@@ -291,7 +296,7 @@ export default function SalesReportPage() {
                 ))}
                 {currentRows.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-10 text-center text-zinc-500">
+                    <td colSpan={9} className="px-6 py-10 text-center text-zinc-500">
                       No matching sales data found
                     </td>
                   </tr>
