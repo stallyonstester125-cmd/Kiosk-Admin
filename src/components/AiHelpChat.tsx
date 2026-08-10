@@ -65,16 +65,6 @@ export default function AiHelpChat() {
     }
   };
 
-  // Toggle chat open/close
-  const toggleChat = () => {
-    setIsOpen((open) => !open);
-  };
-
-  // Close chat
-  const closeChat = () => {
-    setIsOpen(false);
-  };
-
   // Open chat
   const openChat = () => {
     setIsOpen(true);
