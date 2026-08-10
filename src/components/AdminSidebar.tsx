@@ -139,8 +139,15 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
     return hasPermission(item);
   });
 
-  const isActive = (href?: string) =>
-    href && (pathname === href || pathname.startsWith(href + "/"));
+  const isActive = (href?: string) => {
+    if (!href) return false;
+    // Dashboard should ONLY be active when path is exactly "/dashboard"
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+    // For other routes, check if path starts with the href
+    return pathname.startsWith(href + "/") || pathname === href;
+  };
 
   const handleMenuToggle = (key: string) => {
     setExpandedMenu(expandedMenu === key ? null : key);
