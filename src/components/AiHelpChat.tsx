@@ -85,7 +85,7 @@ export default function AiHelpChat() {
     <button
       type="button"
       onClick={openChat}
-      className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-orange)] text-white shadow-lg transition hover:bg-[var(--brand-orange-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-orange)] text-white shadow-lg transition hover:bg-[var(--brand-orange-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       aria-label="Open AI Help"
       title="POS Admin Help"
     >
