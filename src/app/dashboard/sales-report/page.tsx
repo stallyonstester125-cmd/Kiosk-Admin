@@ -159,7 +159,7 @@ export default function SalesReportPage() {
             Analyze gross sales, applied coupon discounts, collected taxes, and net revenue.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Export Dropdown */}
           <div className="relative" ref={exportMenuRef}>
             <button
@@ -205,7 +205,7 @@ export default function SalesReportPage() {
               </div>
             )}
           </div>
-          <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
+          <nav className="flex flex-wrap items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
             <span>Home</span>
             <span>/</span>
             <span className="font-medium">Sales Report</span>

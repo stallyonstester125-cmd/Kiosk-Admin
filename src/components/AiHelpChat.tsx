@@ -75,7 +75,7 @@ export default function AiHelpChat() {
     <button
       type="button"
       onClick={openChat}
-      className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-orange)] text-white shadow-lg transition hover:bg-[var(--brand-orange-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
+      className="fixed bottom-5 right-4 sm:bottom-24 sm:right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-orange)] text-white shadow-lg transition hover:bg-[var(--brand-orange-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-orange)] focus:ring-offset-2"
       aria-label="Open AI Help"
       title="POS Admin Help"
     >
@@ -86,11 +86,11 @@ export default function AiHelpChat() {
   // Render the chat panel when open
   const chatPanel = (
     <section
-      className="fixed bottom-6 right-6 z-50 flex h-[min(520px,calc(100vh-48px))] w-[calc(100vw-48px)] max-w-[380px] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
+      className="fixed bottom-3 right-3 z-50 flex h-[min(520px,calc(100vh-24px))] w-[calc(100vw-24px)] max-w-[380px] sm:bottom-6 sm:right-6 sm:h-[min(520px,calc(100vh-48px))] sm:w-[calc(100vw-48px)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
       aria-label="AI Help Assistant"
       style={{
-        right: "24px",
-        bottom: "24px",
+        right: "12px",
+        bottom: "12px",
       }}
     >
       {/* Header - Fixed */}
@@ -198,7 +198,7 @@ export default function AiHelpChat() {
   );
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 sm:bottom-6 sm:right-6">
+    <div className="fixed bottom-5 right-4 z-50 sm:bottom-6 sm:right-6">
       {isOpen ? chatPanel : floatingButton}
     </div>
   );

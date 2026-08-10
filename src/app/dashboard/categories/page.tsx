@@ -213,6 +213,7 @@ export default function CategoriesPage() {
           </div>
         ) : (
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
@@ -266,6 +267,7 @@ export default function CategoriesPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

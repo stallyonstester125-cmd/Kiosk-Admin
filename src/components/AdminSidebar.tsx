@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Layers, ClipboardList, Ticket, BarChart3, ChevronRight, UtensilsCrossed, Users } from "lucide-react";
+import { Layers, ClipboardList, Ticket, BarChart3, ChevronRight, UtensilsCrossed, Users, X } from "lucide-react";
 import type { Permission } from "@/lib/permissions";
 
 type SubNavItem = {
@@ -94,9 +94,11 @@ const navItems: NavItem[] = [
 interface AdminSidebarProps {
   role?: string;
   permissions?: Permission[];
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function AdminSidebar({ role = "admin", permissions = [] }: AdminSidebarProps) {
+export default function AdminSidebar({ role = "admin", permissions = [], isOpen = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const isAdmin = role === "admin";
@@ -178,9 +180,12 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
   };
 
   return (
-    <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 fixed top-0 left-0 h-full z-40 flex flex-col">
+    <>
+      <button aria-label="Close navigation" onClick={onClose} className={`fixed inset-0 z-40 bg-black/40 transition-opacity lg:hidden ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`} />
+      <aside className={`w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-200 lg:z-40 lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
       {/* Logo at top of sidebar */}
-      <div className="flex items-center justify-center h-24 px-4">
+      <div className="flex items-center justify-center h-24 px-4 relative">
+        <button onClick={onClose} className="absolute right-3 top-3 rounded-md p-2 text-zinc-500 hover:bg-zinc-100 lg:hidden" aria-label="Close navigation"><X className="h-5 w-5" /></button>
         <Image
           src="/images/logo.svg"
           alt="QuickCrave Logo"
@@ -235,6 +240,7 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
                         <Link
                           key={sub.href}
                           href={sub.href}
+                          onClick={onClose}
                           className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                             subItemActive
                               ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] font-medium"
@@ -256,6 +262,7 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
             <Link
               key={item.key}
               href={item.href!}
+              onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
                 active
                   ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
@@ -281,6 +288,7 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
           sizes="256px"
         />
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

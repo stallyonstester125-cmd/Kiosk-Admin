@@ -2,10 +2,10 @@
 
 import { useAuth } from "@/context/AdminAuthContext";
 import { useState } from "react";
-import { LogOut, Search, X, UserCog, XCircle } from "lucide-react";
+import { LogOut, Search, X, UserCog, XCircle, Menu } from "lucide-react";
 import { useSearch } from "@/context/SearchContext";
 
-export default function AdminTopBar() {
+export default function AdminTopBar({ onMenuToggle }: { onMenuToggle: () => void }) {
   const { admin, logout, exitImpersonation } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
   const [exitingImpersonation, setExitingImpersonation] = useState(false);
@@ -47,7 +47,7 @@ export default function AdminTopBar() {
       {/* ── Impersonation Banner ─────────────────────────────────────────── */}
       {isImpersonating && (
         <div
-          className="fixed top-0 left-64 right-0 z-[60] flex items-center justify-between px-4 sm:px-6 lg:px-8 py-1.5"
+          className="fixed top-0 left-0 lg:left-64 right-0 z-[60] flex items-center justify-between px-4 sm:px-6 lg:px-8 py-1.5"
           style={{
             background: "linear-gradient(90deg, #b45309 0%, #d97706 50%, #f59e0b 100%)",
             minHeight: "36px",
@@ -77,14 +77,14 @@ export default function AdminTopBar() {
 
       {/* ── Main Top Bar ─────────────────────────────────────────────────── */}
       <header
-        className="h-16 bg-[var(--brand-orange)] fixed right-0 z-50 flex items-center justify-between px-4 sm:px-6 lg:px-8"
+        className="min-h-16 bg-[var(--brand-orange)] fixed left-0 lg:left-64 right-0 z-30 flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8 py-2 lg:py-0"
         style={{
-          left: "16rem", // 64 = w-64
           top: isImpersonating ? "36px" : "0px",
         }}
       >
+        <button onClick={onMenuToggle} className="order-1 rounded-lg p-2 text-white hover:bg-white/20 lg:hidden" aria-label="Open navigation"><Menu className="h-5 w-5" /></button>
         {/* Left — Search */}
-        <div className="flex items-center gap-4 flex-1 max-w-md">
+        <div className="order-2 w-full lg:order-1 lg:w-auto flex items-center gap-3 flex-1 max-w-none lg:max-w-md">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" strokeWidth={2} />
             <input
@@ -108,7 +108,7 @@ export default function AdminTopBar() {
 
         {/* Right — user info + logout */}
         {admin && (
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="order-1 lg:order-2 ml-auto flex items-center gap-3 flex-shrink-0">
             {/* Avatar + name */}
             <div className="flex items-center gap-2.5">
               <div

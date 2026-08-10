@@ -137,7 +137,7 @@ export default function TransactionsPage() {
               View sales histories, applied coupons, and order invoice summaries.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Export Dropdown */}
             <div className="relative" ref={exportMenuRef}>
               <button
@@ -183,7 +183,7 @@ export default function TransactionsPage() {
                 </div>
               )}
             </div>
-            <nav className="flex items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
+            <nav className="flex flex-wrap items-center gap-2 text-sm text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" aria-label="Breadcrumb">
               <span>Home</span>
               <span>/</span>
               <span className="font-medium">Transaction and Analytics</span>

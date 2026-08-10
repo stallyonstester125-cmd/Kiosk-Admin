@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AdminAuthContext";
 import AdminTopBar from "@/components/AdminTopBar";
@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const { admin, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isImpersonating = admin?.impersonation?.active === true;
 
@@ -34,6 +35,8 @@ export default function DashboardLayout({
       }
     }
   }, [admin, loading, router, pathname]);
+
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   if (loading) {
     return (
@@ -54,14 +57,14 @@ export default function DashboardLayout({
 
   // When the impersonation banner is shown (36px), the topbar shifts down.
   // Add extra padding-top so content doesn't hide behind both the banner and the topbar.
-  const topOffset = isImpersonating ? "pt-[100px]" : "pt-16";
+  const topOffset = isImpersonating ? "pt-[136px] lg:pt-[100px]" : "pt-28 lg:pt-16";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <AdminSidebar role={admin.role} permissions={admin.permissions} />
-      <div className={`flex-1 ml-64 flex flex-col min-h-screen ${topOffset}`}>
-        <AdminTopBar />
-        <main className="flex-1 p-6 sm:p-8 min-h-[calc(100vh-4rem)]">
+      <AdminSidebar role={admin.role} permissions={admin.permissions} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className={`flex-1 lg:ml-64 flex flex-col min-h-screen ${topOffset}`}>
+        <AdminTopBar onMenuToggle={() => setSidebarOpen(true)} />
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
         <AiHelpChat />
