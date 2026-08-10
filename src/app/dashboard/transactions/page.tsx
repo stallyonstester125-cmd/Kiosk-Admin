@@ -155,7 +155,7 @@ export default function TransactionsPage() {
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
               </button>
               {showExportMenu && (
-                <div className="absolute right-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-zinc-200 bg-white py-1.5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800">
+                <div className="absolute left-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-zinc-200 bg-white py-1.5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800 lg:right-0 lg:left-auto">
                   <button
                     id="transactions-export-csv"
                     onClick={() => void handleExport("csv")}
@@ -266,7 +266,7 @@ export default function TransactionsPage() {
 
             {/* Pagination */}
             {pageCount > 1 && (
-              <div className="flex items-center justify-end gap-2 border-t border-zinc-200 px-6 py-3 dark:border-zinc-700">
+              <div className="flex items-center justify-end gap-2 border-t border-zinc-200 px-6 py-3 dark:border-zinc-700 pb-20 lg:pb-0">
                 <button
                   disabled={page === 1}
                   onClick={() => setPage(page - 1)}
