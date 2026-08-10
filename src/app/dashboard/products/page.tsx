@@ -391,7 +391,7 @@ export default function ProductsPage() {
 
         <button
           onClick={openAddModal}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[var(--brand-orange)] text-white flex items-center justify-center shadow-lg hover:bg-[var(--brand-orange-hover)] hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
+          className="fixed bottom-6 right-6 lg:bottom-6 lg:right-6 bottom-6 left-6 lg:right-6 lg:left-auto w-14 h-14 rounded-full bg-[var(--brand-orange)] text-white flex items-center justify-center shadow-lg hover:bg-[var(--brand-orange-hover)] hover:shadow-xl transition-all duration-200 hover:scale-105 z-10"
           aria-label="Add new product"
         >
           <Plus className="w-7 h-7" />
