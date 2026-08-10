@@ -271,7 +271,7 @@ export default function AdminSidebar({ role = "admin", permissions = [] }: Admin
       </nav>
 
       {/* Bottom - wave.svg */}
-      <div className="absolute bottom-[-15vh] left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
+      <div className="pointer-events-none absolute bottom-[-15vh] left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
         <Image
           src="/images/wave.svg"
           alt=""
