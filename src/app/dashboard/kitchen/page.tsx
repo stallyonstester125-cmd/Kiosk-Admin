@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, RefreshCw, Clock, UtensilsCrossed } from "lucide-react";
 import { fetchKitchenOrders, fetchCompletedOrders, updateOrderStatus, Order } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
@@ -197,7 +197,6 @@ export default function KitchenPage() {
   const [advancing, setAdvancing] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
-  const isFirstLoad = useRef(true);
 
   const { filteredData } = useSearch();
 
@@ -212,9 +211,7 @@ export default function KitchenPage() {
 
   const loadOrders = useCallback(async (silent = false) => {
     try {
-      if (!silent && isFirstLoad.current) {
-        setLoading(true);
-      }
+      if (!silent) setLoading(true);
       setError(null);
 
       const [activeData, completedData] = await Promise.all([
@@ -225,7 +222,6 @@ export default function KitchenPage() {
       setActiveOrders(activeData);
       setCompletedOrders(completedData);
       setLastRefreshed(new Date());
-      isFirstLoad.current = false;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load kitchen orders");
     } finally {
