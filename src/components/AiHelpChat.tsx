@@ -18,11 +18,30 @@ const MAX_HISTORY = 12;
 export default function AiHelpChat() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<AiSupportMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleEditModalChange = (event: CustomEvent) => {
+      setIsEditModalOpen(event.detail.isEditing);
+    };
+    window.addEventListener('edit-modal-state-change', handleEditModalChange as EventListener);
+    return () => window.removeEventListener('edit-modal-state-change', handleEditModalChange as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -199,7 +218,9 @@ export default function AiHelpChat() {
 
   return (
     <div className="fixed bottom-5 right-4 z-50 sm:bottom-6 sm:right-6">
-      {isOpen ? chatPanel : floatingButton}
+      {!isMobile || !isEditModalOpen ? (
+        isOpen ? chatPanel : floatingButton
+      ) : null}
     </div>
   );
 }

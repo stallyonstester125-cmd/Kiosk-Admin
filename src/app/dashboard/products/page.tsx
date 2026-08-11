@@ -40,6 +40,15 @@ export default function ProductsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
+  // Notify AiHelpChat when edit modal opens/closes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('edit-modal-state-change', { 
+        detail: { isEditing: !!editingProduct } 
+      }));
+    }
+  }, [editingProduct]);
+
   const { filteredData } = useSearch();
   const filteredProducts = useMemo(() => filteredData(products), [products, filteredData]);
 
