@@ -350,7 +350,7 @@ export default function ProductsPage() {
                         </svg>
                       </div>
                     )}
-                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => openEditModal(product)}
                         className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20 hover:text-[var(--brand-orange)] dark:hover:text-[var(--brand-orange-hover)] transition-colors shadow-sm"

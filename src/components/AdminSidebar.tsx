@@ -229,14 +229,16 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
                   }`}
                   style={isActiveItem ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
                 >
-                  {renderIcon(item, isActiveItem)}
-                  <span className="flex-1">{item.label}</span>
-                  <ChevronRight
-                    className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""} ${
-                      isActiveItem ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" : "text-zinc-500 dark:text-zinc-400"
-                    }`}
-                    strokeWidth={2}
-                  />
+                  <div className="flex items-center gap-3 w-full">
+                    {renderIcon(item, isActiveItem)}
+                    <span className="flex-1 truncate">{item.label}</span>
+                    <ChevronRight
+                      className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""} ${
+                        isActiveItem ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" : "text-zinc-500 dark:text-zinc-400"
+                      }`}
+                      strokeWidth={2}
+                    />
+                  </div>
                 </button>
 
                 {isExpanded && visibleSubItems.length > 0 && (
