@@ -56,18 +56,30 @@ export default function ProductsPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   // Notify AiHelpChat when edit modal opens/closes.
-  // This keeps the chat hidden while editing a product.
+  // This keeps the chat hidden while editing or adding a product.
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const anyModalOpen = isModalOpen || !!deletingProduct;
       window.dispatchEvent(
         new CustomEvent("edit-modal-state-change", {
           detail: {
-            isEditing: !!editingProduct,
+            isEditing: anyModalOpen,
           },
         })
       );
     }
-  }, [editingProduct]);
+    return () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("edit-modal-state-change", {
+            detail: {
+              isEditing: false,
+            },
+          })
+        );
+      }
+    };
+  }, [isModalOpen, deletingProduct]);
 
   const { filteredData } = useSearch();
 

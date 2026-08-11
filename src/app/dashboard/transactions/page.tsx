@@ -55,6 +55,27 @@ export default function TransactionsPage() {
     setPage(1);
   }, [filteredOrders.length]);
 
+  // Hide AI Help Chat when any overlay is open
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const anyModalOpen = !!selectedOrder;
+      window.dispatchEvent(
+        new CustomEvent("edit-modal-state-change", {
+          detail: { isEditing: anyModalOpen },
+        })
+      );
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("edit-modal-state-change", {
+            detail: { isEditing: false },
+          })
+        );
+      }
+    };
+  }, [selectedOrder]);
+
   const loadData = async () => {
     try {
       setLoading(true);

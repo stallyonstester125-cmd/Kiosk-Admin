@@ -28,6 +28,27 @@ export default function CategoriesPage() {
   
   const [errors, setErrors] = useState<{ name?: string; displayOrder?: string }>({});
 
+  // Hide AI Help Chat when any overlay is open
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const anyModalOpen = isModalOpen || !!deletingCategory;
+      window.dispatchEvent(
+        new CustomEvent("edit-modal-state-change", {
+          detail: { isEditing: anyModalOpen },
+        })
+      );
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("edit-modal-state-change", {
+            detail: { isEditing: false },
+          })
+        );
+      }
+    };
+  }, [isModalOpen, deletingCategory]);
+
   const loadData = async () => {
     try {
       setLoading(true);

@@ -457,6 +457,27 @@ export default function StaffPage() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
 
+  // Hide AI Help Chat when any overlay is open
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const anyModalOpen = showCreate || showEdit || !!resetTarget;
+      window.dispatchEvent(
+        new CustomEvent("edit-modal-state-change", {
+          detail: { isEditing: anyModalOpen },
+        })
+      );
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("edit-modal-state-change", {
+            detail: { isEditing: false },
+          })
+        );
+      }
+    };
+  }, [showCreate, showEdit, resetTarget]);
+
   const { filteredData } = useSearch();
   const filteredStaff = useMemo(() => filteredData(staff), [staff]);
 
@@ -583,11 +604,10 @@ export default function StaffPage() {
                       <td className="px-6 py-4 text-zinc-600 dark:text-zinc-300">{member.email}</td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            active
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${active
                               ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                               : "bg-zinc-100 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
-                          }`}
+                            }`}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-green-500" : "bg-zinc-400"}`} />
                           {active ? "Active" : "Inactive"}
@@ -615,11 +635,10 @@ export default function StaffPage() {
                             onClick={() => handleToggleStatus(member)}
                             disabled={togglingId === member._id}
                             title={active ? "Deactivate" : "Activate"}
-                            className={`p-1.5 rounded-lg transition-colors ${
-                              active
+                            className={`p-1.5 rounded-lg transition-colors ${active
                                 ? "text-[var(--brand-orange)] hover:bg-[var(--brand-orange-light)] dark:hover:bg-[var(--brand-orange-dark)]/20"
                                 : "text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
-                            } disabled:opacity-50`}
+                              } disabled:opacity-50`}
                           >
                             {togglingId === member._id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -649,11 +668,10 @@ export default function StaffPage() {
                                   ? "Cannot impersonate an inactive staff account"
                                   : "Impersonate Staff"
                               }
-                              className={`p-1.5 rounded-lg transition-colors ${
-                                active
+                              className={`p-1.5 rounded-lg transition-colors ${active
                                   ? "text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
                                   : "text-zinc-300 dark:text-zinc-600 cursor-not-allowed"
-                              } disabled:opacity-50`}
+                                } disabled:opacity-50`}
                             >
                               {impersonatingId === member._id ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

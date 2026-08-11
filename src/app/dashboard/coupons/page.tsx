@@ -1,31 +1,31 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import { 
-  Edit, 
-  Trash2, 
-  Plus, 
-  X, 
-  Loader2, 
-  AlertCircle, 
-  Copy, 
-  Eye, 
-  ToggleLeft, 
-  ToggleRight, 
-  Percent, 
-  DollarSign, 
+import {
+  Edit,
+  Trash2,
+  Plus,
+  X,
+  Loader2,
+  AlertCircle,
+  Copy,
+  Eye,
+  ToggleLeft,
+  ToggleRight,
+  Percent,
+  DollarSign,
   Calendar,
   Ticket
 } from "lucide-react";
-import { 
-  fetchCoupons, 
-  createCoupon, 
-  updateCoupon, 
-  deleteCoupon, 
-  enableCoupon, 
-  disableCoupon, 
-  duplicateCoupon, 
-  Coupon 
+import {
+  fetchCoupons,
+  createCoupon,
+  updateCoupon,
+  deleteCoupon,
+  enableCoupon,
+  disableCoupon,
+  duplicateCoupon,
+  Coupon
 } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
@@ -70,6 +70,27 @@ export default function CouponsPage() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Hide AI Help Chat when any overlay is open
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const anyModalOpen = isFormModalOpen || isViewModalOpen || !!deletingCoupon;
+      window.dispatchEvent(
+        new CustomEvent("edit-modal-state-change", {
+          detail: { isEditing: anyModalOpen },
+        })
+      );
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("edit-modal-state-change", {
+            detail: { isEditing: false },
+          })
+        );
+      }
+    };
+  }, [isFormModalOpen, isViewModalOpen, deletingCoupon]);
 
   const loadData = async () => {
     try {
@@ -224,7 +245,7 @@ export default function CouponsPage() {
     const now = new Date();
     const future = new Date();
     future.setDate(future.getDate() + 30);
-    
+
     // Format YYYY-MM-DDTHH:MM
     const startStr = now.toISOString().slice(0, 16);
     const endStr = future.toISOString().slice(0, 16);
@@ -239,7 +260,7 @@ export default function CouponsPage() {
 
   const openEditModal = (coupon: Coupon) => {
     setEditingCoupon(coupon);
-    
+
     // Format dates to YYYY-MM-DDTHH:MM for inputs
     const startStr = new Date(coupon.starts_at).toISOString().slice(0, 16);
     const endStr = new Date(coupon.expires_at).toISOString().slice(0, 16);
@@ -561,11 +582,10 @@ export default function CouponsPage() {
                               {/* Toggle Status (Enable/Disable) */}
                               <button
                                 onClick={() => handleToggleStatus(coupon)}
-                                className={`w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center transition-colors ${
-                                  coupon.status === "active"
+                                className={`w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center transition-colors ${coupon.status === "active"
                                     ? "hover:bg-amber-100 text-amber-600"
                                     : "hover:bg-green-100 text-green-600"
-                                }`}
+                                  }`}
                                 title={coupon.status === "active" ? "Disable Coupon" : "Enable Coupon"}
                               >
                                 {coupon.status === "active" ? (
@@ -637,9 +657,8 @@ export default function CouponsPage() {
                 value={formData.code}
                 onChange={(e) => handleFormChange("code", e.target.value.toUpperCase())}
                 placeholder="e.g. WELCOME10"
-                className={`w-full px-4 py-2.5 rounded-lg border ${
-                  errors.code ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-[var(--brand-orange)]`}
+                className={`w-full px-4 py-2.5 rounded-lg border ${errors.code ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                  } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-[var(--brand-orange)]`}
                 disabled={isSubmitting}
                 required
               />
@@ -690,9 +709,8 @@ export default function CouponsPage() {
                     min="1"
                     max="100"
                     placeholder="1-100"
-                    className={`w-full px-4 py-2.5 rounded-lg border ${
-                      errors.percentage ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                    } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
+                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.percentage ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                      } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
                     required
                     disabled={isSubmitting}
                   />
@@ -710,9 +728,8 @@ export default function CouponsPage() {
                     min="0"
                     step="0.01"
                     placeholder="Amount in dollars"
-                    className={`w-full px-4 py-2.5 rounded-lg border ${
-                      errors.fixed_amount ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                    } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
+                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.fixed_amount ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                      } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
                     required
                     disabled={isSubmitting}
                   />
@@ -734,9 +751,8 @@ export default function CouponsPage() {
                   min="0"
                   step="0.01"
                   placeholder="Leave blank for none"
-                  className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.minimum_order ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                  } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${errors.minimum_order ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                    } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
                   disabled={isSubmitting}
                 />
                 {errors.minimum_order && <p className="mt-1 text-xs text-red-500">{errors.minimum_order}</p>}
@@ -771,9 +787,8 @@ export default function CouponsPage() {
                   onChange={(e) => handleFormChange("usage_limit", e.target.value)}
                   min="1"
                   placeholder="Blank = Unlimited"
-                  className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.usage_limit ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                  } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${errors.usage_limit ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                    } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
                   disabled={isSubmitting}
                 />
                 {errors.usage_limit && <p className="mt-1 text-xs text-red-500">{errors.usage_limit}</p>}
@@ -805,9 +820,8 @@ export default function CouponsPage() {
                   type="datetime-local"
                   value={formData.starts_at}
                   onChange={(e) => handleFormChange("starts_at", e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.starts_at ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                  } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${errors.starts_at ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                    } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
                   required
                   disabled={isSubmitting}
                 />
@@ -822,9 +836,8 @@ export default function CouponsPage() {
                   type="datetime-local"
                   value={formData.expires_at}
                   onChange={(e) => handleFormChange("expires_at", e.target.value)}
-                  className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.expires_at ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
-                  } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${errors.expires_at ? "border-red-500" : "border-zinc-300 dark:border-zinc-600"
+                    } bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white`}
                   required
                   disabled={isSubmitting}
                 />
@@ -1015,11 +1028,10 @@ export default function CouponsPage() {
               <div>
                 <span className="font-semibold text-zinc-500 dark:text-zinc-400 block mb-1">Status</span>
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    viewingCoupon.status === "active"
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${viewingCoupon.status === "active"
                       ? "bg-green-100 text-green-800"
                       : "bg-zinc-100 text-zinc-800"
-                  }`}
+                    }`}
                 >
                   {viewingCoupon.status === "active" ? "Active" : "Inactive"}
                 </span>
@@ -1054,7 +1066,7 @@ export default function CouponsPage() {
             Delete Coupon
           </h3>
           <p className="text-zinc-600 dark:text-zinc-400 text-center mb-6 text-sm">
-            Are you sure you want to delete coupon <span className="font-bold text-zinc-950 dark:text-white">{deletingCoupon?.code}</span>? 
+            Are you sure you want to delete coupon <span className="font-bold text-zinc-950 dark:text-white">{deletingCoupon?.code}</span>?
             This action will soft delete the coupon and cannot be undone.
           </p>
           <div className="flex gap-3">
