@@ -55,11 +55,15 @@ export default function ProductsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  // Notify AiHelpChat when edit modal opens/closes.
-  // This keeps the chat hidden while editing or adding a product.
+  // Notify AiHelpChat and lock body scroll when modal opens/closes.
   useEffect(() => {
+    const anyModalOpen = isModalOpen || !!deletingProduct;
     if (typeof window !== "undefined") {
-      const anyModalOpen = isModalOpen || !!deletingProduct;
+      if (anyModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
       window.dispatchEvent(
         new CustomEvent("edit-modal-state-change", {
           detail: {
@@ -70,6 +74,7 @@ export default function ProductsPage() {
     }
     return () => {
       if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
         window.dispatchEvent(
           new CustomEvent("edit-modal-state-change", {
             detail: {
@@ -669,7 +674,7 @@ export default function ProductsPage() {
 
       {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4 overflow-hidden">
           <div
             className="
               bg-white dark:bg-zinc-800
@@ -1286,7 +1291,7 @@ export default function ProductsPage() {
 
       {/* Delete confirmation */}
       {deletingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden">
           <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full p-5 sm:p-6">
             <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/30">
               <AlertCircle className="w-6 h-6 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" />

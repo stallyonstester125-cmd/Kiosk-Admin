@@ -28,10 +28,15 @@ export default function CategoriesPage() {
   
   const [errors, setErrors] = useState<{ name?: string; displayOrder?: string }>({});
 
-  // Hide AI Help Chat when any overlay is open
+  // Hide AI Help Chat and lock body scroll when any overlay is open
   useEffect(() => {
+    const anyModalOpen = isModalOpen || !!deletingCategory;
     if (typeof window !== "undefined") {
-      const anyModalOpen = isModalOpen || !!deletingCategory;
+      if (anyModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
       window.dispatchEvent(
         new CustomEvent("edit-modal-state-change", {
           detail: { isEditing: anyModalOpen },
@@ -40,6 +45,7 @@ export default function CategoriesPage() {
     }
     return () => {
       if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
         window.dispatchEvent(
           new CustomEvent("edit-modal-state-change", {
             detail: { isEditing: false },
@@ -303,7 +309,7 @@ export default function CategoriesPage() {
     </div>
 
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
       style={{ display: isModalOpen ? "flex" : "none" }}
     >
       <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -401,7 +407,7 @@ export default function CategoriesPage() {
     </div>
 
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
       style={{ display: deletingCategory ? "flex" : "none" }}
     >
       <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full p-6">

@@ -55,10 +55,15 @@ export default function TransactionsPage() {
     setPage(1);
   }, [filteredOrders.length]);
 
-  // Hide AI Help Chat when any overlay is open
+  // Hide AI Help Chat and lock body scroll when any overlay is open
   useEffect(() => {
+    const anyModalOpen = !!selectedOrder;
     if (typeof window !== "undefined") {
-      const anyModalOpen = !!selectedOrder;
+      if (anyModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
       window.dispatchEvent(
         new CustomEvent("edit-modal-state-change", {
           detail: { isEditing: anyModalOpen },
@@ -67,6 +72,7 @@ export default function TransactionsPage() {
     }
     return () => {
       if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
         window.dispatchEvent(
           new CustomEvent("edit-modal-state-change", {
             detail: { isEditing: false },
@@ -313,7 +319,7 @@ export default function TransactionsPage() {
 
       {/* Order Detail Modal */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
         style={{ display: selectedOrder ? "flex" : "none" }}
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-zinc-100 dark:border-zinc-700 max-h-[90vh] overflow-y-auto">

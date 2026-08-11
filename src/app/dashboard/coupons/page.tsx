@@ -71,10 +71,15 @@ export default function CouponsPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Hide AI Help Chat when any overlay is open
+  // Hide AI Help Chat and lock body scroll when any overlay is open
   useEffect(() => {
+    const anyModalOpen = isFormModalOpen || isViewModalOpen || !!deletingCoupon;
     if (typeof window !== "undefined") {
-      const anyModalOpen = isFormModalOpen || isViewModalOpen || !!deletingCoupon;
+      if (anyModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
       window.dispatchEvent(
         new CustomEvent("edit-modal-state-change", {
           detail: { isEditing: anyModalOpen },
@@ -83,6 +88,7 @@ export default function CouponsPage() {
     }
     return () => {
       if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
         window.dispatchEvent(
           new CustomEvent("edit-modal-state-change", {
             detail: { isEditing: false },
@@ -421,7 +427,7 @@ export default function CouponsPage() {
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Status Filter */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Status</label>
+              <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Status</label>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
@@ -436,7 +442,7 @@ export default function CouponsPage() {
 
             {/* Discount Type Filter */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Discount Type</label>
+              <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Discount Type</label>
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value as any)}
@@ -450,7 +456,7 @@ export default function CouponsPage() {
 
             {/* Sorting */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Sort By</label>
+              <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Sort By</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
@@ -627,7 +633,7 @@ export default function CouponsPage() {
 
       {/* Form Modal (Create/Edit) */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
         style={{ display: isFormModalOpen ? "flex" : "none" }}
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-zinc-100 dark:border-zinc-700">
@@ -930,7 +936,7 @@ export default function CouponsPage() {
 
       {/* View Coupon Modal */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
         style={{ display: isViewModalOpen ? "flex" : "none" }}
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-zinc-100 dark:border-zinc-700">
@@ -1055,7 +1061,7 @@ export default function CouponsPage() {
 
       {/* Delete Coupon Modal */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-hidden"
         style={{ display: deletingCoupon ? "flex" : "none" }}
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-zinc-100 dark:border-zinc-700">

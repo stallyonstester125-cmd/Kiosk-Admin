@@ -64,7 +64,7 @@ function CreateStaffModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-hidden">
       <div className="bg-white dark:bg-zinc-800 rounded-xl w-full max-w-md max-h-[calc(100vh-2rem)] flex flex-col">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 pb-0 flex-shrink-0">
@@ -145,7 +145,7 @@ function CreateStaffModal({
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-zinc-500 mt-1">Select pages this staff member can access. Default: Kitchen only.</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Select pages this staff member can access. Default: Kitchen only.</p>
             </div>
           </div>
         </div>
@@ -215,7 +215,7 @@ function EditStaffModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-hidden">
       <div className="bg-white dark:bg-zinc-800 rounded-xl w-full max-w-md max-h-[calc(100vh-2rem)] flex flex-col">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 pb-0 flex-shrink-0">
@@ -294,7 +294,7 @@ function EditStaffModal({
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-zinc-500 mt-1">Select pages this staff member can access.</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Select pages this staff member can access.</p>
             </div>
           </div>
         </div>
@@ -362,7 +362,7 @@ function ResetPasswordModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-hidden">
       <div className="bg-white dark:bg-zinc-800 rounded-xl w-full max-w-md max-h-[calc(100vh-2rem)] flex flex-col">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 pb-0 flex-shrink-0">
@@ -457,10 +457,15 @@ export default function StaffPage() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
 
-  // Hide AI Help Chat when any overlay is open
+  // Hide AI Help Chat and lock body scroll when any overlay is open
   useEffect(() => {
+    const anyModalOpen = showCreate || showEdit || !!resetTarget;
     if (typeof window !== "undefined") {
-      const anyModalOpen = showCreate || showEdit || !!resetTarget;
+      if (anyModalOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
       window.dispatchEvent(
         new CustomEvent("edit-modal-state-change", {
           detail: { isEditing: anyModalOpen },
@@ -469,6 +474,7 @@ export default function StaffPage() {
     }
     return () => {
       if (typeof window !== "undefined") {
+        document.body.style.overflow = "";
         window.dispatchEvent(
           new CustomEvent("edit-modal-state-change", {
             detail: { isEditing: false },

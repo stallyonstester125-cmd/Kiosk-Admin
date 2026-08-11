@@ -287,7 +287,7 @@ export default function AdminSidebar({
 
         {/* Navigation */}
         <nav className="relative z-10 flex-1 pt-0 px-4 space-y-2">
-          <div className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-3 py-2">
+          <div className="text-xs font-semibold text-zinc-400 dark:text-zinc-400 uppercase tracking-wider px-3 py-2">
             {isAdmin ? "MAIN" : "KITCHEN"}
           </div>
 
