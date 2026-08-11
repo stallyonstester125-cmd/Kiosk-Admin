@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { Loader2, RefreshCw, Clock, UtensilsCrossed } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { Loader2, RefreshCw, Clock, UtensilsCrossed, Bell, X } from "lucide-react";
 import { fetchKitchenOrders, fetchCompletedOrders, updateOrderStatus, Order } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
+import { io as socketIo, Socket } from "socket.io-client";
+
+// Derive socket server URL from the env var (strip /v1 path suffix if present)
+const SOCKET_URL = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/v1";
+  // Socket.IO connects to root, not /v1
+  return raw.replace(/\/v1\/?$/, "");
+})();
 
 // ─── Status config ────────────────────────────────────────────────────────────
 type KitchenStatus = "received" | "confirmed" | "preparing" | "ready" | "completed";
@@ -196,9 +204,89 @@ export default function KitchenPage() {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [advancing, setAdvancing] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [newOrderToast, setNewOrderToast] = useState<{
+    orderNumber: string;
+    customerName: string;
+  } | null>(null);
 
+  const socketRef = useRef<Socket | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { filteredData } = useSearch();
+
+  // ── Web Audio chime (no static file required) ─────────────────────────────
+  const playChime = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const now = ctx.currentTime;
+
+      // Two-tone ding-dong
+      const tones = [880, 660];
+      tones.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const start = now + i * 0.25;
+        gain.gain.setValueAtTime(0.001, start);
+        gain.gain.exponentialRampToValueAtTime(0.35, start + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.55);
+        osc.start(start);
+        osc.stop(start + 0.6);
+      });
+    } catch {
+      // Audio not available — silently ignore, order still appears
+    }
+  }, []);
+
+  // ── Toast helper ─────────────────────────────────────────────────────────
+  const showToast = useCallback((orderNumber: string, customerName: string) => {
+    setNewOrderToast({ orderNumber, customerName });
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setNewOrderToast(null), 5000);
+  }, []);
+
+  // ── Socket.IO real-time connection ───────────────────────────────────────
+  useEffect(() => {
+    const socket = socketIo(SOCKET_URL, {
+      withCredentials: true,      // sends admin_accessToken cookie automatically
+      transports: ["websocket", "polling"],
+      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+    });
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      setSocketConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      setSocketConnected(false);
+    });
+
+    const handleNewOrder = (order: Order) => {
+      setActiveOrders((prev) => {
+        // Deduplicate — skip if this order _id already exists
+        if (prev.some((o) => o._id === order._id)) return prev;
+        // Append to the end; API already returns FIFO (oldest first)
+        return [...prev, order];
+      });
+      playChime();
+      showToast(order.orderNumber, order.customerName);
+    };
+
+    socket.on("order:new", handleNewOrder);
+
+    return () => {
+      socket.off("order:new", handleNewOrder);
+      socket.disconnect();
+      socketRef.current = null;
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, [playChime, showToast]);
 
   const displayOrders = useMemo(() => {
     const list = filter === "completed" ? completedOrders : activeOrders;
@@ -229,10 +317,10 @@ export default function KitchenPage() {
     }
   }, []);
 
-  // Initial load + polling every 8 seconds
+  // Initial load + polling every 30s (Socket provides real-time; polling is a fallback)
   useEffect(() => {
     void loadOrders();
-    const interval = setInterval(() => void loadOrders(true), 8000);
+    const interval = setInterval(() => void loadOrders(true), 30000);
     return () => clearInterval(interval);
   }, [loadOrders]);
 
@@ -277,7 +365,10 @@ export default function KitchenPage() {
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Kitchen Queue</h1>
           </div>
           <p className="text-xs text-zinc-400 mt-1">
-            Auto-refreshes every 8s · Last updated {lastRefreshed.toLocaleTimeString()}
+            {socketConnected
+              ? "🟢 Live updates active"
+              : "⚠ Connecting to live updates…"}
+            {" · Last updated "}{lastRefreshed.toLocaleTimeString()}
           </p>
         </div>
         <button
@@ -355,6 +446,35 @@ export default function KitchenPage() {
               advancing={advancing === order._id}
             />
           ))}
+        </div>
+      )}
+
+      {/* ── New Order Toast Notification ── */}
+      {newOrderToast && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="fixed top-5 right-5 z-[9999] flex items-start gap-3 rounded-2xl border border-[var(--brand-orange)]/30 bg-white dark:bg-zinc-900 shadow-2xl p-4 w-80 animate-in slide-in-from-top-2 fade-in duration-300"
+        >
+          <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)]/10">
+            <Bell className="h-4 w-4 text-[var(--brand-orange)]" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-zinc-900 dark:text-white">New Order Received</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+              #{newOrderToast.orderNumber}
+            </p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+              Customer: {newOrderToast.customerName}
+            </p>
+          </div>
+          <button
+            onClick={() => setNewOrderToast(null)}
+            aria-label="Dismiss notification"
+            className="flex-shrink-0 rounded-lg p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
     </div>
