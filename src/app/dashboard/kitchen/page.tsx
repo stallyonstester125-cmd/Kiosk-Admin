@@ -251,42 +251,85 @@ export default function KitchenPage() {
 
   // ── Socket.IO real-time connection ───────────────────────────────────────
   useEffect(() => {
-    const socket = socketIo(SOCKET_URL, {
-      withCredentials: true,      // sends admin_accessToken cookie automatically
-      transports: ["websocket", "polling"],
-      reconnectionAttempts: 10,
-      reconnectionDelay: 2000,
-    });
-    socketRef.current = socket;
+    // Track whether the component is still mounted (prevents state updates after unmount)
+    let mounted = true;
+    let socket: ReturnType<typeof socketIo> | null = null;
 
-    socket.on("connect", () => {
-      setSocketConnected(true);
-    });
+    const connect = async () => {
+      // Step 1: Fetch the admin token from the Next.js same-origin API route.
+      // The admin_accessToken cookie is stored on the Vercel domain (because all
+      // Admin REST calls go through the Next.js /api proxy).  That cookie is NOT
+      // sent when Socket.IO connects directly to the Railway origin.  This route
+      // reads it server-side and returns the raw value so we can inject it into
+      // the socket handshake.
+      let token: string | null = null;
+      try {
+        const res = await fetch("/api/socket-token", { credentials: "include" });
+        if (res.ok) {
+          const json = await res.json() as { token: string | null };
+          token = json.token ?? null;
+        }
+      } catch {
+        // Non-fatal — socket server will try cookie fallback
+      }
 
-    socket.on("disconnect", () => {
-      setSocketConnected(false);
-    });
+      if (!mounted) return;
 
-    const handleNewOrder = (order: Order) => {
-      setActiveOrders((prev) => {
-        // Deduplicate — skip if this order _id already exists
-        if (prev.some((o) => o._id === order._id)) return prev;
-        // Append to the end; API already returns FIFO (oldest first)
-        return [...prev, order];
+      // Step 2: Connect to the Socket.IO server passing the token via auth
+      socket = socketIo(SOCKET_URL, {
+        withCredentials: true,
+        transports: ["websocket", "polling"],
+        reconnectionAttempts: 10,
+        reconnectionDelay: 2000,
+        auth: token ? { token } : {},
       });
-      playChime();
-      showToast(order.orderNumber, order.customerName);
+
+      if (!mounted) { socket.disconnect(); return; }
+
+      socketRef.current = socket;
+
+      socket.on("connect", () => {
+        if (mounted) setSocketConnected(true);
+        console.log("[Kitchen] Socket connected:", socket?.id);
+      });
+
+      socket.on("connect_error", (err) => {
+        console.warn("[Kitchen] Socket connect_error:", err.message);
+        if (mounted) setSocketConnected(false);
+      });
+
+      socket.on("disconnect", (reason) => {
+        if (mounted) setSocketConnected(false);
+        console.log("[Kitchen] Socket disconnected:", reason);
+      });
+
+      const handleNewOrder = (order: Order) => {
+        console.log("[Kitchen] order:new received:", order.orderNumber);
+        if (!mounted) return;
+        setActiveOrders((prev) => {
+          if (prev.some((o) => o._id === order._id)) return prev;
+          return [...prev, order];
+        });
+        playChime();
+        showToast(order.orderNumber, order.customerName);
+      };
+
+      socket.on("order:new", handleNewOrder);
     };
 
-    socket.on("order:new", handleNewOrder);
+    void connect();
 
     return () => {
-      socket.off("order:new", handleNewOrder);
-      socket.disconnect();
+      mounted = false;
+      if (socket) {
+        socket.offAny();
+        socket.disconnect();
+      }
       socketRef.current = null;
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
   }, [playChime, showToast]);
+
 
   const displayOrders = useMemo(() => {
     const list = filter === "completed" ? completedOrders : activeOrders;
