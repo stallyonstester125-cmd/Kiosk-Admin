@@ -219,13 +219,11 @@ export default function KitchenPage() {
 
       const [activeData, completedData] = await Promise.all([
         fetchKitchenOrders(),
-        filter === "completed" ? fetchCompletedOrders() : Promise.resolve([]),
+        fetchCompletedOrders(),
       ]);
 
       setActiveOrders(activeData);
-      if (filter === "completed") {
-        setCompletedOrders(completedData);
-      }
+      setCompletedOrders(completedData);
       setLastRefreshed(new Date());
       isFirstLoad.current = false;
     } catch (err) {
@@ -233,7 +231,7 @@ export default function KitchenPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, []);
 
   // Initial load + polling every 8 seconds
   useEffect(() => {
@@ -331,7 +329,7 @@ export default function KitchenPage() {
             }`}
           >
             {tab.label}
-            {tab.key !== "all" && tab.key !== "completed" && (
+            {tab.key !== "all" && (
               <span className="ml-1.5 opacity-60">({countByStatus(tab.key)})</span>
             )}
           </button>
