@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import {
   Loader2, X, Receipt, ShoppingBag, Download, ChevronDown,
   FileText, FileSpreadsheet, Sheet, Calendar, DollarSign,
-  Percent, TrendingUp,
+  Percent,
 } from "lucide-react";
 import { fetchOrders, Order, downloadTransactionsReport } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
@@ -130,13 +130,21 @@ export default function TransactionsPage() {
   }, [dateFilteredOrders, filteredData, query]);
 
   // ── Analytics metrics — identical formula to Sales Report netSales ─────────
-  const stats = useMemo(() => ({
-    totalTransactions: filteredOrders.length,
-    netSales: filteredOrders.reduce((s, o) => s + (o.grand_total ?? o.total ?? 0), 0),
-    grossSales: filteredOrders.reduce((s, o) => s + (o.subtotal_before_discount ?? o.subtotal ?? 0), 0),
-    totalDiscounts: filteredOrders.reduce((s, o) => s + (o.discount_amount ?? 0), 0),
-    totalTax: filteredOrders.reduce((s, o) => s + (o.tax_after_discount ?? o.tax ?? 0), 0),
-  }), [filteredOrders]);
+  // grossSales = subtotal BEFORE any discount (item price total)
+  // netSales   = grand_total (subtotal - discount + 10% tax) — matches Sales Report exactly
+  // netSales > grossSales is expected when discount is small and 10% tax is added on top
+  const stats = useMemo(() => {
+    const txCount = filteredOrders.length;
+    const ns = filteredOrders.reduce((s, o) => s + (o.grand_total ?? o.total ?? 0), 0);
+    return {
+      totalTransactions: txCount,
+      netSales: ns,
+      grossSales: filteredOrders.reduce((s, o) => s + (o.subtotal_before_discount ?? o.subtotal ?? 0), 0),
+      totalDiscounts: filteredOrders.reduce((s, o) => s + (o.discount_amount ?? 0), 0),
+      totalTax: filteredOrders.reduce((s, o) => s + (o.tax_after_discount ?? o.tax ?? 0), 0),
+      aov: txCount > 0 ? ns / txCount : 0,
+    };
+  }, [filteredOrders]);
 
   // ── Monthly chart data ─────────────────────────────────────────────────────
   const chartData = useMemo(() => {
@@ -153,17 +161,20 @@ export default function TransactionsPage() {
     return Object.values(map).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
   }, [filteredOrders]);
 
-  // ── Monthly breakdown table ────────────────────────────────────────────────
+  // ── Monthly breakdown table (enriched: gross/discounts/tax/aov) ──────────────
   const monthlyBreakdown = useMemo(() => {
     const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    const map: Record<string, { month: string; transactions: number; netSales: number; sortKey: string }> = {};
+    const map: Record<string, { month: string; transactions: number; grossSales: number; discounts: number; tax: number; netSales: number; sortKey: string }> = {};
 
     filteredOrders.forEach((order) => {
       const d = new Date(order.createdAt);
       const sk = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      if (!map[sk]) map[sk] = { month: `${MONTHS[d.getMonth()]} ${d.getFullYear()}`, transactions: 0, netSales: 0, sortKey: sk };
+      if (!map[sk]) map[sk] = { month: `${MONTHS[d.getMonth()]} ${d.getFullYear()}`, transactions: 0, grossSales: 0, discounts: 0, tax: 0, netSales: 0, sortKey: sk };
       map[sk].transactions += 1;
-      map[sk].netSales += order.grand_total ?? order.total ?? 0;
+      map[sk].grossSales   += (order.subtotal_before_discount ?? order.subtotal ?? 0);
+      map[sk].discounts    += (order.discount_amount ?? 0);
+      map[sk].tax          += (order.tax_after_discount ?? order.tax ?? 0);
+      map[sk].netSales     += (order.grand_total ?? order.total ?? 0);
     });
 
     return Object.values(map).sort((a, b) => b.sortKey.localeCompare(a.sortKey));
@@ -375,7 +386,7 @@ export default function TransactionsPage() {
         </div>
 
         {/* ── Analytics Summary Cards ── */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {/* Net Sales */}
           <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
             <div className="flex items-center justify-between mb-2">
@@ -385,7 +396,7 @@ export default function TransactionsPage() {
               </span>
             </div>
             <p className="text-2xl font-bold text-zinc-900 dark:text-white">{money(stats.netSales)}</p>
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Total revenue generated</p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">After discounts + 10% tax</p>
           </div>
 
           {/* Gross Sales */}
@@ -397,7 +408,7 @@ export default function TransactionsPage() {
               </span>
             </div>
             <p className="text-2xl font-bold text-zinc-900 dark:text-white">{money(stats.grossSales)}</p>
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Before discounts & tax</p>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Before discounts &amp; tax</p>
           </div>
 
           {/* Total Discounts */}
@@ -422,18 +433,6 @@ export default function TransactionsPage() {
             </div>
             <p className="text-2xl font-bold text-zinc-900 dark:text-white">{stats.totalTransactions}</p>
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Total orders processed</p>
-          </div>
-
-          {/* Profit (unavailable) */}
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Profit</span>
-              <span className="rounded-full bg-purple-50 p-1.5 dark:bg-purple-900/20">
-                <TrendingUp className="h-4 w-4 text-purple-500" />
-              </span>
-            </div>
-            <p className="text-sm font-semibold text-zinc-400 dark:text-zinc-500 mt-1">Data unavailable</p>
-            <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500 italic">No product cost data stored</p>
           </div>
         </div>
 
@@ -524,24 +523,30 @@ export default function TransactionsPage() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-zinc-200 bg-zinc-50 text-xs uppercase tracking-wider text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400">
                 <tr>
-                  <th className="px-6 py-3">Month</th>
-                  <th className="px-6 py-3 text-right">Transactions</th>
-                  <th className="px-6 py-3 text-right">Net Sales</th>
-                  <th className="px-6 py-3 text-right">Profit</th>
+                  <th className="px-4 py-3">Month</th>
+                  <th className="px-4 py-3 text-right">Txns</th>
+                  <th className="px-4 py-3 text-right">Gross Sales</th>
+                  <th className="px-4 py-3 text-right">Discounts</th>
+                  <th className="px-4 py-3 text-right">Tax</th>
+                  <th className="px-4 py-3 text-right">Net Sales</th>
+                  <th className="px-4 py-3 text-right">AOV</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
                 {monthlyBreakdown.map((row) => (
                   <tr key={row.sortKey} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30">
-                    <td className="px-6 py-3.5 font-medium text-zinc-900 dark:text-white">{row.month}</td>
-                    <td className="px-6 py-3.5 text-right text-zinc-600 dark:text-zinc-300">{row.transactions}</td>
-                    <td className="px-6 py-3.5 text-right font-bold text-zinc-900 dark:text-white">{money(row.netSales)}</td>
-                    <td className="px-6 py-3.5 text-right text-xs italic text-zinc-400 dark:text-zinc-500">N/A</td>
+                    <td className="px-4 py-3 font-medium text-zinc-900 dark:text-white whitespace-nowrap">{row.month}</td>
+                    <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-300">{row.transactions}</td>
+                    <td className="px-4 py-3 text-right text-zinc-700 dark:text-200">{money(row.grossSales)}</td>
+                    <td className="px-4 py-3 text-right text-red-600 dark:text-red-400">-{money(row.discounts)}</td>
+                    <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-300">{money(row.tax)}</td>
+                    <td className="px-4 py-3 text-right font-bold text-zinc-900 dark:text-white">{money(row.netSales)}</td>
+                    <td className="px-4 py-3 text-right text-zinc-600 dark:text-zinc-300">{money(row.transactions > 0 ? row.netSales / row.transactions : 0)}</td>
                   </tr>
                 ))}
                 {monthlyBreakdown.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-zinc-500 dark:text-zinc-400">
+                    <td colSpan={7} className="px-6 py-8 text-center text-zinc-500 dark:text-zinc-400">
                       No monthly data available
                     </td>
                   </tr>
