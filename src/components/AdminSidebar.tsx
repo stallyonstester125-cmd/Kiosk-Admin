@@ -4,7 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Layers, ClipboardList, CreditCard, BarChart3, ChevronRight, UtensilsCrossed, Users, X, Ticket } from "lucide-react";
+import {
+  Layers,
+  ClipboardList,
+  BarChart3,
+  ChevronRight,
+  UtensilsCrossed,
+  Users,
+  X,
+  Ticket,
+} from "lucide-react";
 import type { Permission } from "@/lib/permissions";
 import { useAuth } from "@/context/AdminAuthContext";
 
@@ -20,7 +29,10 @@ type NavItem = {
   href?: string;
   iconType: "image" | "lucide";
   iconSrc?: string;
-  icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: React.ComponentType<{
+    className?: string;
+    strokeWidth?: number;
+  }>;
   subItems?: SubNavItem[];
   adminOnly?: boolean;
   permission?: Permission;
@@ -41,8 +53,16 @@ const navItems: NavItem[] = [
     iconType: "lucide",
     icon: Layers,
     subItems: [
-      { label: "Product", href: "/dashboard/products", permission: "products" },
-      { label: "Category", href: "/dashboard/categories", permission: "categories" },
+      {
+        label: "Product",
+        href: "/dashboard/products",
+        permission: "products",
+      },
+      {
+        label: "Category",
+        href: "/dashboard/categories",
+        permission: "categories",
+      },
     ],
   },
   {
@@ -99,64 +119,99 @@ interface AdminSidebarProps {
   onClose?: () => void;
 }
 
-export default function AdminSidebar({ role = "admin", permissions = [], isOpen = false, onClose }: AdminSidebarProps) {
+export default function AdminSidebar({
+  role = "admin",
+  permissions = [],
+  isOpen = false,
+  onClose,
+}: AdminSidebarProps) {
   const pathname = usePathname();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const { admin } = useAuth();
 
   const isAdmin = role === "admin";
 
-  // Check if user has permission to see a nav item
+  // Keep auth context behavior unchanged.
+  void admin;
+
+  // ------------------------------------------------------------
+  // Permission helpers
+  // ------------------------------------------------------------
+
   const hasPermission = (item: NavItem): boolean => {
     // Admin sees everything
     if (isAdmin) return true;
-    // If item has no permission requirement, allow
+
+    // Items without a permission requirement are visible
     if (!item.permission) return true;
-    // Check if user has the required permission
+
     return permissions?.includes(item.permission) ?? false;
   };
 
-  // Check if user has permission for a sub-item
   const hasSubPermission = (sub: SubNavItem): boolean => {
     // Admin sees everything
     if (isAdmin) return true;
-    // If sub-item has no permission requirement, allow
+
+    // Sub-items without a permission requirement are visible
     if (!sub.permission) return true;
-    // Check if user has the required permission
+
     return permissions?.includes(sub.permission) ?? false;
   };
 
-  const visibleSubItems = (item: NavItem) => {
+  const visibleSubItems = (item: NavItem): SubNavItem[] => {
     if (!item.subItems) return [];
-    return item.subItems.filter(sub => hasSubPermission(sub));
+
+    return item.subItems.filter((sub) => hasSubPermission(sub));
   };
 
   const hasVisibleSubItems = (item: NavItem): boolean => {
     if (!item.subItems) return false;
-    return item.subItems.some(sub => hasSubPermission(sub));
+
+    return item.subItems.some((sub) => hasSubPermission(sub));
   };
 
   const visibleItems = navItems.filter((item) => {
     if (item.adminOnly && !isAdmin) return false;
-    if (item.subItems) return hasVisibleSubItems(item);
+
+    if (item.subItems) {
+      return hasVisibleSubItems(item);
+    }
+
     return hasPermission(item);
   });
 
-  const isActive = (href?: string) => {
+  // ------------------------------------------------------------
+  // Active route
+  // ------------------------------------------------------------
+
+  const isActive = (href?: string): boolean => {
     if (!href) return false;
-    // Dashboard should ONLY be active when path is exactly "/dashboard"
+
+    // Dashboard must only be active on exactly /dashboard
     if (href === "/dashboard") {
       return pathname === "/dashboard";
     }
-    // For other routes, check if path starts with the href
+
+    // Other pages are active for their child routes as well
     return pathname.startsWith(href + "/") || pathname === href;
   };
 
+  // ------------------------------------------------------------
+  // Menu toggle
+  // ------------------------------------------------------------
+
   const handleMenuToggle = (key: string) => {
-    setExpandedMenu(expandedMenu === key ? null : key);
+    setExpandedMenu((current) => (current === key ? null : key));
   };
 
-  const renderIcon = (item: NavItem, isActiveItem: boolean) => {
+  // ------------------------------------------------------------
+  // Icons
+  // ------------------------------------------------------------
+
+  const renderIcon = (
+    item: NavItem,
+    isActiveItem: boolean
+  ) => {
     if (item.iconType === "image") {
       return (
         <Image
@@ -176,10 +231,12 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
         />
       );
     }
+
     const Icon = item.icon!;
+
     return (
       <Icon
-        className={`w-5 h-5 ${
+        className={`w-5 h-5 flex-shrink-0 ${
           isActiveItem
             ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
             : "text-zinc-500 dark:text-zinc-400"
@@ -191,11 +248,33 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
 
   return (
     <>
-      <button aria-label="Close navigation" onClick={onClose} className={`fixed inset-0 z-40 bg-black/40 transition-opacity lg:hidden ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`} />
-      <aside className={`w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-200 lg:z-40 lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      {/* Mobile backdrop */}
+      <button
+        aria-label="Close navigation"
+        onClick={onClose}
+        className={`fixed inset-0 z-40 bg-black/40 transition-opacity lg:hidden ${
+          isOpen
+            ? "opacity-100"
+            : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      {/* Sidebar */}
+      <aside
+        className={`w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-200 lg:z-40 lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         {/* Logo at top of sidebar */}
         <div className="flex items-center justify-center h-24 px-4 relative">
-          <button onClick={onClose} className="absolute right-3 top-3 rounded-md p-2 text-zinc-500 hover:bg-zinc-100 lg:hidden" aria-label="Close navigation"><X className="h-5 w-5" /></button>
+          <button
+            onClick={onClose}
+            className="absolute right-3 top-3 rounded-md p-2 text-zinc-500 hover:bg-zinc-100 lg:hidden"
+            aria-label="Close navigation"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
           <Image
             src="/images/logo.svg"
             alt="QuickCrave Logo"
@@ -207,7 +286,7 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 pt-0 px-4 space-y-2">
+        <nav className="relative z-10 flex-1 pt-0 px-4 space-y-2">
           <div className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-3 py-2">
             {isAdmin ? "MAIN" : "KITCHEN"}
           </div>
@@ -215,39 +294,83 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
           {visibleItems.map((item) => {
             const active = isActive(item.href);
 
+            // --------------------------------------------------
+            // Menu Layout with submenu
+            // --------------------------------------------------
+
             if (item.subItems) {
-              const visibleSubItems = item.subItems.filter(sub => hasSubPermission(sub));
-              const subActive = visibleSubItems.some((sub) => isActive(sub.href));
-              const isExpanded = expandedMenu === item.key;
-              const isActiveItem = active || subActive;
+              const currentVisibleSubItems =
+                visibleSubItems(item);
+
+              const subActive = currentVisibleSubItems.some(
+                (sub) => isActive(sub.href)
+              );
+
+              const isExpanded =
+                expandedMenu === item.key;
+
+              const isActiveItem =
+                active || subActive;
 
               return (
                 <div key={item.key}>
                   <button
-                    onClick={() => handleMenuToggle(item.key)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
+                    type="button"
+                    onClick={() =>
+                      handleMenuToggle(item.key)
+                    }
+                    className={`w-full flex items-center rounded-lg transition-colors text-sm font-medium ${
                       isActiveItem
                         ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
                         : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
                     }`}
-                    style={isActiveItem ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
+                    style={
+                      isActiveItem
+                        ? {
+                            borderLeft:
+                              "4px solid var(--brand-orange)",
+                            paddingLeft: "8px",
+                            paddingTop: "10px",
+                            paddingRight: "12px",
+                            paddingBottom: "10px",
+                          }
+                        : {
+                            paddingLeft: "12px",
+                            paddingTop: "10px",
+                            paddingRight: "12px",
+                            paddingBottom: "10px",
+                          }
+                    }
                   >
-                    <div className="flex items-center gap-3 w-full">
-                      {renderIcon(item, isActiveItem)}
-                      <span className="flex-1 truncate">{item.label}</span>
-                      <ChevronRight
-                        className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""} ${
-                          isActiveItem ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]" : "text-zinc-500 dark:text-zinc-400"
-                        }`}
-                        strokeWidth={2}
-                      />
-                    </div>
+                    {/* IMPORTANT:
+                        No extra nested flex container.
+                        Smaller gap moves "Menu Layout" slightly left.
+                    */}
+                    {renderIcon(item, isActiveItem)}
+
+                    <span className="ml-2 flex-1 truncate text-left">
+                      {item.label}
+                    </span>
+
+                    <ChevronRight
+                      className={`w-4 h-4 flex-shrink-0 ml-auto transition-transform ${
+                        isExpanded ? "rotate-90" : ""
+                      } ${
+                        isActiveItem
+                          ? "text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
+                          : "text-zinc-500 dark:text-zinc-400"
+                      }`}
+                      strokeWidth={2}
+                    />
                   </button>
 
+                  {/* Submenu */}
                   {isExpanded && (
-                    <div className="mt-1 ml-6 space-y-1 border-l border-zinc-200 dark:border-zinc-800 pl-3">
-                      {visibleSubItems.map((sub) => {
-                        const subItemActive = isActive(sub.href);
+                    <div className="relative z-10 mt-1 ml-6 space-y-1 border-l border-zinc-200 dark:border-zinc-800 pl-3">
+                      {currentVisibleSubItems.map((sub) => {
+                        const subItemActive =
+                          isActive(sub.href);
+
                         return (
                           <Link
                             key={sub.href}
@@ -258,7 +381,14 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
                                 ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)] font-medium"
                                 : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
                             }`}
-                            style={subItemActive ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
+                            style={
+                              subItemActive
+                                ? {
+                                    borderLeft:
+                                      "4px solid var(--brand-orange)",
+                                  }
+                                : {}
+                            }
                           >
                             {sub.label}
                           </Link>
@@ -270,6 +400,10 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
               );
             }
 
+            // --------------------------------------------------
+            // Normal navigation item
+            // --------------------------------------------------
+
             return (
               <Link
                 key={item.key}
@@ -280,17 +414,36 @@ export default function AdminSidebar({ role = "admin", permissions = [], isOpen 
                     ? "bg-[var(--brand-orange-light)] dark:bg-[var(--brand-orange-dark)]/20 text-[var(--brand-orange)] dark:text-[var(--brand-orange-hover)]"
                     : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
                 }`}
-                style={active ? { borderLeft: `4px solid var(--brand-orange)` } : {}}
+                style={
+                  active
+                    ? {
+                        borderLeft:
+                          "4px solid var(--brand-orange)",
+                      }
+                    : {}
+                }
               >
                 {renderIcon(item, active)}
+
                 <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom - wave.svg */}
-        <div className="pointer-events-none absolute bottom-[-15vh] left-0 right-0 z-0" style={{ height: "40vh", maxHeight: "40vh" }}>
+        {/* Bottom decorative wave */}
+        {/* 
+          Keep the exact existing visual size/position.
+          pointer-events-none means it cannot block navigation clicks.
+          z-0 keeps it behind the navigation.
+        */}
+        <div
+          className="pointer-events-none absolute bottom-[-15vh] left-0 right-0 z-0"
+          style={{
+            height: "40vh",
+            maxHeight: "40vh",
+          }}
+        >
           <Image
             src="/images/wave.svg"
             alt=""
