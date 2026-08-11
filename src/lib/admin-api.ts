@@ -54,6 +54,7 @@ export interface Order {
   status: 'received' | 'confirmed' | 'preparing' | 'ready' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt: string;
+  completedAt?: string | null;
   coupon_code?: string | null;
   discount_amount?: number;
   subtotal_before_discount?: number;
@@ -184,6 +185,16 @@ export async function fetchKitchenOrders(): Promise<Order[]> {
   });
   const json = await res.json();
   if (!res.ok || !json.success) throw new Error(json.message || 'Failed to fetch kitchen orders');
+  return json.data as Order[];
+}
+
+export async function fetchCompletedOrders(): Promise<Order[]> {
+  const res = await fetch(`${API_BASE_URL}/orders/completed`, {
+    credentials: 'include',
+    cache: 'no-store',
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Failed to fetch completed orders');
   return json.data as Order[];
 }
 

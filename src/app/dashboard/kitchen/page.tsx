@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Loader2, RefreshCw, Clock, UtensilsCrossed } from "lucide-react";
-import { fetchKitchenOrders, updateOrderStatus, Order } from "@/lib/admin-api";
+import { fetchKitchenOrders, fetchCompletedOrders, updateOrderStatus, Order } from "@/lib/admin-api";
 import { useSearch } from "@/context/SearchContext";
 
 // ─── Status config ────────────────────────────────────────────────────────────
-type KitchenStatus = "received" | "confirmed" | "preparing" | "ready";
+type KitchenStatus = "received" | "confirmed" | "preparing" | "ready" | "completed";
 
 const STATUS_CONFIG: Record<KitchenStatus, {
   label: string;
@@ -43,6 +43,13 @@ const STATUS_CONFIG: Record<KitchenStatus, {
     border: "border-green-200 dark:border-green-800",
     dot: "bg-green-500",
   },
+  completed: {
+    label: "Completed",
+    bg: "bg-green-50 dark:bg-green-950/30",
+    text: "text-green-700 dark:text-green-300",
+    border: "border-green-200 dark:border-green-800",
+    dot: "bg-green-500",
+  },
 };
 
 // FIFO next-step map (matches server-side ALLOWED_TRANSITIONS)
@@ -51,6 +58,7 @@ const NEXT_STATUS: Record<KitchenStatus, KitchenStatus | "completed" | null> = {
   confirmed: "completed",
   preparing: "completed",
   ready: "completed",
+  completed: null,
 };
 
 const NEXT_LABEL: Record<string, string> = {
@@ -70,7 +78,7 @@ function elapsedTime(createdAt: string): string {
 }
 
 function isKitchenStatus(s: string): s is KitchenStatus {
-  return ["received", "confirmed", "preparing", "ready"].includes(s);
+  return ["received", "confirmed", "preparing", "ready", "completed"].includes(s);
 }
 
 // ─── Order Card ───────────────────────────────────────────────────────────────
@@ -113,7 +121,11 @@ function OrderCard({
       {/* Time */}
       <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
         <Clock className="w-3.5 h-3.5" />
-        <span>{elapsedTime(order.createdAt)}</span>
+        <span>
+          {order.status === "completed"
+            ? `Completed ${order.completedAt ? elapsedTime(order.completedAt) : elapsedTime(order.updatedAt)}`
+            : elapsedTime(order.createdAt)}
+        </span>
       </div>
 
       {/* Items */}
@@ -170,36 +182,58 @@ const FILTER_TABS = [
   { key: "all", label: "All Active" },
   { key: "received", label: "Received" },
   { key: "confirmed", label: "Confirmed" },
+  { key: "completed", label: "Completed" },
 ] as const;
 
 type FilterKey = (typeof FILTER_TABS)[number]["key"];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function KitchenPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [advancing, setAdvancing] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
+  const isFirstLoad = useRef(true);
+
   const { filteredData } = useSearch();
-  const filteredOrders = useMemo(() => filteredData(orders), [orders]);
+
+  const displayOrders = useMemo(() => {
+    const list = filter === "completed" ? completedOrders : activeOrders;
+    const searchFiltered = filteredData(list);
+    if (filter === "all" || filter === "completed") {
+      return searchFiltered;
+    }
+    return searchFiltered.filter((o) => o.status === filter);
+  }, [filter, activeOrders, completedOrders, filteredData]);
 
   const loadOrders = useCallback(async (silent = false) => {
     try {
-      if (!silent) setLoading(true);
+      if (!silent && isFirstLoad.current) {
+        setLoading(true);
+      }
       setError(null);
-      const data = await fetchKitchenOrders();
-      // Already sorted FIFO by the API (createdAt ASC), preserve order
-      setOrders(data);
+
+      const [activeData, completedData] = await Promise.all([
+        fetchKitchenOrders(),
+        filter === "completed" ? fetchCompletedOrders() : Promise.resolve([]),
+      ]);
+
+      setActiveOrders(activeData);
+      if (filter === "completed") {
+        setCompletedOrders(completedData);
+      }
       setLastRefreshed(new Date());
+      isFirstLoad.current = false;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load kitchen orders");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filter]);
 
   // Initial load + polling every 8 seconds
   useEffect(() => {
@@ -221,10 +255,12 @@ export default function KitchenPage() {
     }
   };
 
-  const displayOrders =
-    filter === "all" ? filteredOrders : filteredOrders.filter((o) => o.status === filter);
-
-  const countByStatus = (s: string) => filteredOrders.filter((o) => o.status === s).length;
+  const countByStatus = (s: string) => {
+    if (s === "completed") {
+      return filteredData(completedOrders).length;
+    }
+    return filteredData(activeOrders).filter((o) => o.status === s).length;
+  };
 
   if (loading) {
     return (
@@ -295,7 +331,7 @@ export default function KitchenPage() {
             }`}
           >
             {tab.label}
-            {tab.key !== "all" && (
+            {tab.key !== "all" && tab.key !== "completed" && (
               <span className="ml-1.5 opacity-60">({countByStatus(tab.key)})</span>
             )}
           </button>
@@ -307,10 +343,12 @@ export default function KitchenPage() {
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <UtensilsCrossed className="w-12 h-12 text-zinc-300 dark:text-zinc-600" />
           <p className="text-zinc-400 dark:text-zinc-500 text-lg font-medium">
-            No active orders
+            {filter === "completed" ? "No completed orders" : "No active orders"}
           </p>
           <p className="text-zinc-400 dark:text-zinc-500 text-sm">
-            New orders will appear here automatically
+            {filter === "completed"
+              ? "Completed orders will be listed here"
+              : "New orders will appear here automatically"}
           </p>
         </div>
       ) : (
