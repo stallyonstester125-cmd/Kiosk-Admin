@@ -492,13 +492,13 @@ export default function KitchenPage() {
         </div>
       )}
 
-      {/* ── New Order Toast Notification ── */}
-      {newOrderToast && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="fixed top-5 right-5 z-[9999] flex items-start gap-3 rounded-2xl border border-[var(--brand-orange)]/30 bg-white dark:bg-zinc-900 shadow-2xl p-4 w-80 animate-in slide-in-from-top-2 fade-in duration-300"
-        >
+       {/* ── New Order Toast Notification ── */}
+       {newOrderToast && (
+         <div
+           role="alert"
+           aria-live="assertive"
+           className="fixed bottom-28 right-6 z-[9999] flex items-start gap-3 rounded-2xl border border-[var(--brand-orange)]/30 bg-white dark:bg-zinc-900 shadow-2xl p-4 w-80 animate-in slide-in-from-bottom-2 fade-in duration-300"
+         >
           <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--brand-orange)]/10">
             <Bell className="h-4 w-4 text-[var(--brand-orange)]" />
           </span>
